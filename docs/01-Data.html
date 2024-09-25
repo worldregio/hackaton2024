@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="P. Pistre - C. Grasland - H. Commenges">
+
+<title>Hackaton2024 - Préparation des données</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Hackaton2024</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/worldregio/hackaton2024" rel="" target="_blank"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-Data.html">Préparation des données</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Objectifs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-Data.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Préparation des données</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#rp-logement-2020-insee" id="toc-rp-logement-2020-insee" class="nav-link" data-scroll-target="#rp-logement-2020-insee">RP Logement 2020 (INSEE)</a>
+  <ul class="collapse">
+  <li><a href="#etape-1-importation-des-données-au-format-r" id="toc-etape-1-importation-des-données-au-format-r" class="nav-link" data-scroll-target="#etape-1-importation-des-données-au-format-r">Etape 1 : Importation des données au format R</a></li>
+  <li><a href="#etape-2-sélection-des-données-utiles-et-sauvegarde-au-format-.rds" id="toc-etape-2-sélection-des-données-utiles-et-sauvegarde-au-format-.rds" class="nav-link" data-scroll-target="#etape-2-sélection-des-données-utiles-et-sauvegarde-au-format-.rds">Etape 2 : Sélection des données utiles et sauvegarde au format .RDS</a></li>
+  </ul></li>
+  <li><a href="#géométries-2020-ign" id="toc-géométries-2020-ign" class="nav-link" data-scroll-target="#géométries-2020-ign">Géométries 2020 (IGN)</a>
+  <ul class="collapse">
+  <li><a href="#etape-1-importation-et-transformation-au-format-sf" id="toc-etape-1-importation-et-transformation-au-format-sf" class="nav-link" data-scroll-target="#etape-1-importation-et-transformation-au-format-sf">Etape 1 : Importation et transformation au format sf</a></li>
+  <li><a href="#etape-2-visualisation-des-iris-de-la-zone-détude" id="toc-etape-2-visualisation-des-iris-de-la-zone-détude" class="nav-link" data-scroll-target="#etape-2-visualisation-des-iris-de-la-zone-détude">Etape 2 : Visualisation des IRIS de la zone d’étude</a></li>
+  <li><a href="#etape-3-carte-des-arrondissements" id="toc-etape-3-carte-des-arrondissements" class="nav-link" data-scroll-target="#etape-3-carte-des-arrondissements">Etape 3 : Carte des arrondissements</a></li>
+  <li><a href="#etape-4-création-dun-contour-complet-de-la-commune" id="toc-etape-4-création-dun-contour-complet-de-la-commune" class="nav-link" data-scroll-target="#etape-4-création-dun-contour-complet-de-la-commune">Etape 4 : création d’un contour complet de la commune</a></li>
+  <li><a href="#etape-5-superposition-des-trois-fonds-de-carte" id="toc-etape-5-superposition-des-trois-fonds-de-carte" class="nav-link" data-scroll-target="#etape-5-superposition-des-trois-fonds-de-carte">Etape 5 : Superposition des trois fonds de carte</a></li>
+  </ul></li>
+  <li><a href="#logement-social-2020" id="toc-logement-social-2020" class="nav-link" data-scroll-target="#logement-social-2020">Logement social 2020</a>
+  <ul class="collapse">
+  <li><a href="#etape-1-chargement-du-fichier" id="toc-etape-1-chargement-du-fichier" class="nav-link" data-scroll-target="#etape-1-chargement-du-fichier">Etape 1 : Chargement du fichier</a></li>
+  <li><a href="#etape-2-test-de-superposition-géométrique" id="toc-etape-2-test-de-superposition-géométrique" class="nav-link" data-scroll-target="#etape-2-test-de-superposition-géométrique">Etape 2 : Test de superposition géométrique</a></li>
+  <li><a href="#etape-3-carte-des-logements-sociaux" id="toc-etape-3-carte-des-logements-sociaux" class="nav-link" data-scroll-target="#etape-3-carte-des-logements-sociaux">Etape 3 : Carte des logements sociaux</a></li>
+  </ul></li>
+  <li><a href="#bilan" id="toc-bilan" class="nav-link" data-scroll-target="#bilan">Bilan</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Préparation des données</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>P. Pistre - C. Grasland - H. Commenges </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'data.table' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'data.table'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    between, first, last</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+</section>
+<section id="rp-logement-2020-insee" class="level2">
+<h2 class="anchored" data-anchor-id="rp-logement-2020-insee">RP Logement 2020 (INSEE)</h2>
+<p>Nous partons des fichiers détail de l’INSEE car, à la différence des tableaux prédéfinis, ils permettent virtuellement toutes les formes de croisement d’indicateurs. Ils sont évidemment très volumineux mais ici vous avez la chance de bénéficier d’une extraction des communes sur lesquelles vous allez travailler</p>
+<section id="etape-1-importation-des-données-au-format-r" class="level3">
+<h3 class="anchored" data-anchor-id="etape-1-importation-des-données-au-format-r">Etape 1 : Importation des données au format R</h3>
+<p>Comme les fichiers sont d’assez petite taille, on se contentera d’utiliser la fonction<code>read.csv</code> qui fait partie du <strong>R-base</strong> :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>t1<span class="ot">&lt;-</span><span class="fu">Sys.time</span>()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tab<span class="ot">&lt;-</span><span class="fu">read.csv</span>(<span class="st">"data/rplogmt_13055.csv"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>t2<span class="ot">&lt;-</span><span class="fu">Sys.time</span>()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span> (<span class="st">"chargement effectué en"</span>,t2<span class="sc">-</span>t1,<span class="st">"secondes"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(tab)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(tab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dans l’exemple choisi (Marseille) le tableau ne comporte que 182735 individus et se charge en moins d’une seconde</p>
+<p>Toutefois, si vous êtes amenés à traiter directement des fichiers de l’INSEE comportant plusieurs millions d’enregistrement vous aurez intérêt à utiliser des fonctions plus puissantes comme la fonction <code>read_csv2</code> du package <strong>readr</strong> ou, miuex encore, la fonction <code>fread</code> du package <strong>data.table</strong></p>
+</section>
+<section id="etape-2-sélection-des-données-utiles-et-sauvegarde-au-format-.rds" class="level3">
+<h3 class="anchored" data-anchor-id="etape-2-sélection-des-données-utiles-et-sauvegarde-au-format-.rds">Etape 2 : Sélection des données utiles et sauvegarde au format .RDS</h3>
+<p>Nos tableaux peuvent être enregistés au format interne de .R ce qui réduira considérablement leur taille par rapport au fichier texte au format .csv qui pèse en général beaucoup plus.</p>
+<p>Comme ces données vont nous servir durant tout le projet, elles seront stockées dans le dossier <strong>res</strong> qui sera spécifique à l’exemple retenu.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Sauvegarde au format RDS</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> tab,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"res/tabmen.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="etape-3-chargement-et-sauvegarde-des-méta-données" class="level4">
+<h4 class="anchored" data-anchor-id="etape-3-chargement-et-sauvegarde-des-méta-données">Etape 3 : Chargement et sauvegarde des méta-données</h4>
+<p>Il ne faut surtout pas oublier le fichier des métadonnées qui va permettre de recoder facilement tous les facteurs et de décoder les chiffres correspondant aux classes. On va donc le transformer au format R puis l’enregistrer également dans le dossier res. Noter qu’on utilise cette fois-ci la fonction <code>read.csv2</code>car le séparateur de colonne n’est plus la virgule (ce qu’on lit avec <code>read.csv</code>) mais le point virgule.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lecture du fichier de métadonnées</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>meta<span class="ot">&lt;-</span><span class="fu">read.csv2</span>(<span class="st">"meta/Dictionnaire variables_logemt_2020.csv"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Enregistrement dans le dossier data</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> meta,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"res/tabmen_meta.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="géométries-2020-ign" class="level2">
+<h2 class="anchored" data-anchor-id="géométries-2020-ign">Géométries 2020 (IGN)</h2>
+<p>Les contours des unités spatiales correspondant aux codes de l’INSEE sont produits par l’IGN et disponibles sur le site géoservice en accès libre. En général on récupère un très gros fichier pour la France entière ce qui demande un peu de travail pour extraire juste la zone d’étude. Ici vous avez de la chance puisqu’on vous a déjà extrait le fichier relatif à votre commune</p>
+<section id="etape-1-importation-et-transformation-au-format-sf" class="level3">
+<h3 class="anchored" data-anchor-id="etape-1-importation-et-transformation-au-format-sf">Etape 1 : Importation et transformation au format sf</h3>
+<p>La cartographie et plus généralement les opérations géométriques sur des données spatiales dans R peuvent facilement être effectuées avec le <strong>package sf</strong> (spatial features) qui crée des objets ubniques rassemblant à la fois</p>
+<ul>
+<li>un tableau de données (l’équivalent du fichier .dbf)</li>
+<li>une géométrie (l’équivalent du fichier .shp)</li>
+<li>une projection (l’équivalent du fichier .prj)</li>
+</ul>
+<p>Lorsqu’on récupère des fonds de carte au format shapefile (.shp) ou dans d’autres formats standards comme GeoJson, la première tâche consiste donc à les convertir au formt sf afin de pouvoir les utiliser facilement dans R. L’importation se fait à l’aide de l’instruction <code>st_read</code> en indiquant juste le nom du fichier .shp à charger. Les autres fichiers (.dbf ou .proj) seront lus également et intégrés dans l’objet qui hérite de la double classe <em>data.frame</em> et <em>sf</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>map_iris <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/iris_13055.gml"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `iris_13055' from data source 
+  `/Users/claudegrasland1/worldregio/hackaton2024/data/iris_13055.gml' 
+  using driver `GML'
+Simple feature collection with 393 features and 7 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 881250.9 ymin: 6232998 xmax: 905587.3 ymax: 6257715
+Projected CRS: RGF93 Lambert 93</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(map_iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 393   8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(map_iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sf"         "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(map_iris,<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 2 features and 7 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 892700.6 ymin: 6245602 xmax: 893856.1 ymax: 6246686
+Projected CRS: RGF93 Lambert 93
+        gml_id INSEE_COM                     NOM_COM IRIS CODE_IRIS
+1 iris_13055.0     13206 Marseille 6e Arrondissement  301 132060301
+2 iris_13055.1     13206 Marseille 6e Arrondissement  602 132060602
+        NOM_IRIS TYP_IRIS               geometryProperty
+1        Bergers        H MULTIPOLYGON (((893856.1 62...
+2 Vauban-Fénelon        H MULTIPOLYGON (((892867.6 62...</code></pre>
+</div>
+</div>
+<p>Pour faciliter la compatibilité avec d’autres applications, la 8e colonne qui contient le contour des zones est renommée “geometry” plutôt que “geometryProperty”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_geometry</span>(map_iris) <span class="ot">&lt;-</span><span class="st">"geometry"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="etape-2-visualisation-des-iris-de-la-zone-détude" class="level3">
+<h3 class="anchored" data-anchor-id="etape-2-visualisation-des-iris-de-la-zone-détude">Etape 2 : Visualisation des IRIS de la zone d’étude</h3>
+<p>Le nouveau tableau ne comporte plus que 393 unités spatiales et 8 colonnes On peut visualiser rapidement le résultat à l’aide de la fonction <code>plot</code>du package <strong>sf</strong> :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_iris<span class="sc">$</span>geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01-Data_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>On sauvegarde le résultat dans notre dossier <strong>res</strong> au format interne de R :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> map_iris,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"res/map_iris.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="etape-3-carte-des-arrondissements" class="level3">
+<h3 class="anchored" data-anchor-id="etape-3-carte-des-arrondissements">Etape 3 : Carte des arrondissements</h3>
+<p>Comme nous serons amenés à travailler à plusieurs échelles, nous produisons tout de suite un fonds de carte des arrondissements en utilisant les fonctions d’agrégation du packages <strong>sf</strong> combinées avec celles de <strong>dplyr</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>map_arr <span class="ot">&lt;-</span> map_iris  <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(INSEE_COM) <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">summarise</span>(<span class="at">NOM_COM =</span> <span class="fu">min</span>(NOM_COM)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">st_as_sf</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>on vérifie que l’agrégation s’est bien passée :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_arr<span class="sc">$</span>geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01-Data_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Et on sauvegarde le fonds de carte</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> map_arr,</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"res/map_arr.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="etape-4-création-dun-contour-complet-de-la-commune" class="level3">
+<h3 class="anchored" data-anchor-id="etape-4-création-dun-contour-complet-de-la-commune">Etape 4 : création d’un contour complet de la commune</h3>
+<p>Enfin, on construit un fonds de carte de l’ensemble de la commune étudiée</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Agrégation</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>map_com <span class="ot">&lt;-</span> map_iris  <span class="sc">%&gt;%</span>     <span class="fu">mutate</span>(<span class="at">tot =</span> <span class="st">"Marseille"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">group_by</span>(tot) <span class="sc">%&gt;%</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">summarise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">st_as_sf</span>()</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualisation</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_com<span class="sc">$</span>geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01-Data_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sauvegarde</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> map_com,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"res/map_com.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="etape-5-superposition-des-trois-fonds-de-carte" class="level3">
+<h3 class="anchored" data-anchor-id="etape-5-superposition-des-trois-fonds-de-carte">Etape 5 : Superposition des trois fonds de carte</h3>
+<p>La fonction <code>plot</code> du package <strong>sf</strong> permet de superposer des couches cartographiques avec l’instruction <code>add=TRUE</code>. Elle permet également de régler les couleurs des polygones (<code>col=</code>) ainsi que la couleur et l’épaisseur des frontières (<code>border=</code> et <code>lwd=</code>). Lorsqu’on ne souhaite pas remplir les polygones on indique <code>col=NULL</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_iris<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="st">"lightyellow"</span>, <span class="at">border =</span> <span class="st">"gray80"</span>, <span class="at">lwd=</span><span class="fl">0.5</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_arr<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"gray50"</span>, <span class="at">lwd=</span><span class="dv">1</span>, <span class="at">add=</span><span class="cn">TRUE</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_com<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"gray30"</span>, <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01-Data_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="logement-social-2020" class="level2">
+<h2 class="anchored" data-anchor-id="logement-social-2020">Logement social 2020</h2>
+<p>Les données sur le logement social sont été téléchargées sur le site du ministère du développement durable :</p>
+<section id="etape-1-chargement-du-fichier" class="level3">
+<h3 class="anchored" data-anchor-id="etape-1-chargement-du-fichier">Etape 1 : Chargement du fichier</h3>
+<p>On charge le fichier qui comporte 182735 observation et 70 variables et on le sauvegarde</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>rpls<span class="ot">&lt;-</span><span class="fu">read.csv</span>(<span class="st">"data/rpls_13055.csv"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rpls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  X.1 DROIT DEPCOM CODEPOSTAL                      LIBCOM NUMVOIE INDREP
+1   1     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+2   2     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+3   3     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+4   4     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+5   5     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+6   6     1  13055      13009 Marseille 9e Arrondissement    &lt;NA&gt;   &lt;NA&gt;
+  TYPVOIE                      NOMVOIE NUMAPPT NUMBOITE  ESC COULOIR ETAGE
+1    &lt;NA&gt; 55, Traverse de la Gouffonne     103       NA &lt;NA&gt;    &lt;NA&gt;     0
+2    &lt;NA&gt; 55, Traverse de la Gouffonne     113       NA &lt;NA&gt;    &lt;NA&gt;     1
+3    &lt;NA&gt; 55, Traverse de la Gouffonne     114       NA &lt;NA&gt;    &lt;NA&gt;     1
+4    &lt;NA&gt; 55, Traverse de la Gouffonne     202       NA &lt;NA&gt;    &lt;NA&gt;     0
+5    &lt;NA&gt; 55, Traverse de la Gouffonne     123       NA &lt;NA&gt;    &lt;NA&gt;     2
+6    &lt;NA&gt; 55, Traverse de la Gouffonne     124       NA &lt;NA&gt;    &lt;NA&gt;     2
+  COMPLIDENT ENTREE  BAT     IMMEU                COMPLGEO LIEUDIT QPV
+1       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-1 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+2       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-1 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+3       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-1 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+4       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-2 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+5       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-1 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+6       &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; 184-BT1-1 RESIDENCE LE MASSALIA I    &lt;NA&gt;   2
+  TYPECONST NBPIECE SURFHAB CONSTRUCT LOCAT PATRIMOINE ORIGINE FINAN FINANAUTRE
+1         C       3      65      1995  1998       1998       1    12         12
+2         C       3      65      1995  1998       1998       1    12         12
+3         C       5     100      1995  1998       1998       1    12         12
+4         C       3      65      1995  1998       1998       1    12         12
+5         C       3      69      1995  1998       1998       1    12         12
+6         C       3      69      1995  1998       1998       1    12         12
+  CONV                    NUMCONV DATCONV NEWLOGT CUS DPEDATE DPEENERGIE
+1    1 13204199785123110750722399      NA      NA  NA      NA          B
+2    1 13204199785123110750722399      NA      NA  NA      NA          B
+3    1 13204199785123110750722399      NA      NA  NA      NA          B
+4    1 13204199785123110750722399      NA      NA  NA      NA          B
+5    1 13204199785123110750722399      NA      NA  NA      NA          B
+6    1 13204199785123110750722399      NA      NA  NA      NA          B
+  DPESERRE SRU_EXPIR SRU_ALINEA CODSEGPATRIM             LIBSEGPATRIM PMR REG
+1        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+2        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+3        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+4        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+5        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+6        C      2031         NA       SEG001 Marseille Prov. Metropol   1  93
+                      LIBREG DEP           LIBDEP      EPCI
+1 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+2 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+3 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+4 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+5 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+6 Provence-Alpes-Côte d'Azur  13 Bouches-du-Rhône 200054807
+                             LIBEPCI EPSG        X       Y PLG_QP PLG_IRIS2021
+1 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+2 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+3 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+4 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+5 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+6 Métropole d'Aix-Marseille-Provence 2154 895698.9 6241946     HZ          404
+  PLG_ZUS PLG_ZFU PLG_QVA PLG_CODE_COMMUNE2021 QUALITE_VOIE QUALITE_NUMERO
+1      HZ     CSZ      HZ                13209           NA             NA
+2      HZ     CSZ      HZ                13209           NA             NA
+3      HZ     CSZ      HZ                13209           NA             NA
+4      HZ     CSZ      HZ                13209           NA             NA
+5      HZ     CSZ      HZ                13209           NA             NA
+6      HZ     CSZ      HZ                13209           NA             NA
+  QUALITE_XY DISTANCE_PRECISION QUALITE_QP QUALITE_IRIS QUALITE_ZUS QUALITE_ZFU
+1         11               &lt;NA&gt;          1            1           1          NA
+2         11               &lt;NA&gt;          1            1           1          NA
+3         11               &lt;NA&gt;          1            1           1          NA
+4         11               &lt;NA&gt;          1            1           1          NA
+5         11               &lt;NA&gt;          1            1           1          NA
+6         11               &lt;NA&gt;          1            1           1          NA
+  QUALITE_QVA COMAQP COMRIL
+1           1      1      1
+2           1      1      1
+3           1      1      1
+4           1      1      1
+5           1      1      1
+6           1      1      1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(rpls,<span class="st">"res/rpls.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="etape-2-test-de-superposition-géométrique" class="level3">
+<h3 class="anchored" data-anchor-id="etape-2-test-de-superposition-géométrique">Etape 2 : Test de superposition géométrique</h3>
+<p>Le fichier comporte deux colonnes X et Y dont on ignore la projection. On va tester leur superposition sur les fonds de carte précédents pour voir s’il s’agit de la même.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_iris<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="st">"lightyellow"</span>, <span class="at">border =</span> <span class="st">"gray80"</span>, <span class="at">lwd=</span><span class="fl">0.5</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_arr<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"gray50"</span>, <span class="at">lwd=</span><span class="dv">1</span>, <span class="at">add=</span><span class="cn">TRUE</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(map_com<span class="sc">$</span>geometry, <span class="at">col=</span> <span class="cn">NA</span>, <span class="at">border =</span> <span class="st">"gray30"</span>, <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">add=</span><span class="cn">TRUE</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(rpls<span class="sc">$</span>X, rpls<span class="sc">$</span>Y, <span class="at">col=</span><span class="st">"red"</span>,<span class="at">pch=</span><span class="dv">20</span>, <span class="at">cex=</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01-Data_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Bingo, la superposition est parfaite donc la projection est la même. Il s’agit de la Lambert93 dont le CRS peut-être affiché par la commande <code>st_crs()</code> du package <code>sf</code> :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(map_iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coordinate Reference System:
+  User input: RGF93 Lambert 93 
+  wkt:
+PROJCRS["RGF93 Lambert 93",
+    BASEGEOGCRS["RGF93 geographiques (dms)",
+        DATUM["Reseau Geodesique Francais 1993 v1",
+            ELLIPSOID["GRS 1980",6378137,298.257222101,
+                LENGTHUNIT["metre",1]]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["degree",0.0174532925199433]],
+        ID["IGNF","RGF93G"]],
+    CONVERSION["LAMBERT-93",
+        METHOD["Lambert Conic Conformal (2SP)",
+            ID["EPSG",9802]],
+        PARAMETER["Latitude of false origin",46.5,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8821]],
+        PARAMETER["Longitude of false origin",3,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8822]],
+        PARAMETER["Latitude of 1st standard parallel",44,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8823]],
+        PARAMETER["Latitude of 2nd standard parallel",49,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8824]],
+        PARAMETER["Easting at false origin",700000,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8826]],
+        PARAMETER["Northing at false origin",6600000,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8827]]],
+    CS[Cartesian,2],
+        AXIS["easting (X)",east,
+            ORDER[1],
+            LENGTHUNIT["metre",1]],
+        AXIS["northing (Y)",north,
+            ORDER[2],
+            LENGTHUNIT["metre",1]],
+    USAGE[
+        SCOPE["NATIONALE A CARACTERE LEGAL"],
+        AREA["FRANCE METROPOLITAINE (CORSE COMPRISE)"],
+        BBOX[41,-5.5,52,10]],
+    ID["IGNF","LAMB93"]]</code></pre>
+</div>
+</div>
+</section>
+<section id="etape-3-carte-des-logements-sociaux" class="level3">
+<h3 class="anchored" data-anchor-id="etape-3-carte-des-logements-sociaux">Etape 3 : Carte des logements sociaux</h3>
+<p>On va alors pouvoir créer un fonds de carte géométrique de ces logements sociaux en indiquant la projection du fonds de carte des Iris.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformation du data.frame en objet sf</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>rpls_geom<span class="ot">&lt;-</span><span class="fu">st_as_sf</span>(rpls,<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"X"</span>,<span class="st">"Y"</span>))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Récupération du code EPSG de la projection</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(rpls_geom)<span class="ot">&lt;-</span><span class="fu">st_crs</span>(map_iris)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Sauvegarde au format .RDS</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(rpls_geom, <span class="st">"res/rpls_geom.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="bilan" class="level2">
+<h2 class="anchored" data-anchor-id="bilan">Bilan</h2>
+<p>Nous avons désormais un dossier <strong>res</strong> qui comporte tous les éléments utiles pour l’analyse de notre zone d’étude.</p>
+<ol type="1">
+<li>Le recensement des logements ordinaires en 2020 et ses métadonnées</li>
+<li>Les fonds de carte par iris, arrondissement et commune.</li>
+<li>Le fichier du RPLS pour l’année 2020 en version statistique ou cartographique</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">"res"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "map_arr.RDS"     "map_com.RDS"     "map_iris.RDS"    "rpls_geom.RDS"  
+[5] "rpls.RDS"        "tabmen_meta.RDS" "tabmen.RDS"     </code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">Copyright 2024, Claude Grasland, Pierre Pistre, Hadrien Commenges</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>

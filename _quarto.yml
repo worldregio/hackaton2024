@@ -5,16 +5,20 @@ project:
 website:
   title: "Hackaton2024"
   sidebar:
-    left:
+    contents:
       - href: index.qmd
-        text: "Index"
+        text: "Objectifs"
+      - href: 01-Data.qmd
+        text: "Préparation des données"        
+ 
+  navbar:
     right: 
       - icon: github # add icons as navbar buttons
         href: https://github.com/worldregio/hackaton2024
         target: _blank
   page-footer:
     background: dark
-    left: Copyright 2024, Claude Grasland
+    left: Copyright 2024, Claude Grasland, Pierre Pistre, Hadrien Commenges
 format:
   html:
     theme: 

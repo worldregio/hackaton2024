@@ -1,0 +1,258 @@
+---
+title: "Préparation des données"
+author: "P. Pistre - C. Grasland - H. Commenges"
+---
+
+
+
+```{r}
+library(knitr)
+library(dplyr)
+library(data.table)
+library(readr)
+library(sf)
+library(ggplot2)
+```
+
+## Introduction
+
+
+## RP Logement 2020 (INSEE)
+
+
+Nous partons des fichiers détail de l'INSEE car, à la différence des tableaux prédéfinis,  ils permettent virtuellement toutes les formes de croisement d'indicateurs. Ils sont évidemment très volumineux mais ici vous avez la chance de bénéficier d'une extraction des communes sur lesquelles vous allez travailler
+
+
+### Etape 1 : Importation des données au format R
+
+
+Comme les fichiers sont d'assez petite taille, on se contentera d'utiliser la fonction`read.csv` qui fait partie du **R-base** :
+
+```{r, eval = FALSE}
+t1<-Sys.time()
+tab<-read.csv("data/rplogmt_13055.csv")
+t2<-Sys.time()
+paste ("chargement effectué en",t2-t1,"secondes")
+dim(tab)
+class(tab)
+```
+
+Dans l'exemple choisi (Marseille) le tableau ne comporte que 182735 individus et se charge en moins d'une seconde
+
+Toutefois, si vous êtes amenés à traiter directement des fichiers de l'INSEE comportant plusieurs millions d'enregistrement  vous aurez intérêt à utiliser des fonctions plus puissantes comme la fonction `read_csv2` du package **readr** ou, miuex encore, la fonction `fread` du package **data.table**
+
+
+### Etape 2 : Sélection des données utiles et sauvegarde au format .RDS
+
+Nos tableaux peuvent être enregistés au format interne de .R ce qui réduira considérablement leur taille par rapport au fichier texte au format .csv qui pèse en général beaucoup plus. 
+
+Comme ces données vont nous servir durant tout le projet, elles seront stockées dans le dossier **res** qui sera spécifique à l'exemple retenu.
+
+
+```{r, eval = FALSE}
+## Sauvegarde au format RDS
+saveRDS(object = tab,
+        file = "res/tabmen.RDS")
+```
+
+
+#### Etape 3 : Chargement et sauvegarde des méta-données
+
+Il ne faut surtout pas oublier le fichier des métadonnées qui va permettre de recoder facilement tous les facteurs et de décoder les chiffres correspondant aux classes. On va donc le transformer au format R puis l'enregistrer également dans le dossier res. Noter qu'on utilise cette fois-ci la fonction `read.csv2`car le séparateur de colonne n'est plus la virgule (ce qu'on lit avec `read.csv`) mais le point virgule. 
+
+
+```{r, eval = FALSE}
+# Lecture du fichier de métadonnées
+meta<-read.csv2("meta/Dictionnaire variables_logemt_2020.csv")
+# Enregistrement dans le dossier data
+saveRDS(object = meta,
+        file = "res/tabmen_meta.RDS")
+```
+
+
+
+
+## Géométries 2020 (IGN)
+
+Les contours des unités spatiales correspondant aux codes de l'INSEE sont produits par l'IGN et disponibles sur le site géoservice en accès libre. En général on récupère un très gros fichier pour la France entière ce qui demande un peu de travail pour extraire juste la zone d'étude. Ici vous avez de la chance puisqu'on vous a déjà extrait le fichier relatif à votre commune
+
+
+
+
+### Etape 1 : Importation et transformation au format sf
+
+La cartographie et plus généralement les opérations géométriques sur des données spatiales dans R peuvent facilement être effectuées avec le **package sf** (spatial features) qui crée des objets ubniques  rassemblant à la fois 
+
+- un tableau de données (l'équivalent du fichier .dbf)
+- une géométrie (l'équivalent du fichier .shp)
+- une projection (l'équivalent du fichier .prj)
+
+Lorsqu'on récupère des fonds de carte au format shapefile (.shp) ou dans d'autres formats standards comme GeoJson, la première tâche consiste donc à les convertir au formt sf afin de pouvoir les utiliser facilement dans R. L'importation se fait à l'aide de l'instruction `st_read` en indiquant juste le nom du fichier .shp à charger. Les autres fichiers (.dbf ou .proj) seront lus également et intégrés dans l'objet qui hérite de la double classe *data.frame* et *sf*.
+
+
+
+```{r }
+library(sf)
+map_iris <- st_read("data/iris_13055.gml")
+dim(map_iris)
+class(map_iris)
+head(map_iris,2)
+```
+
+
+Pour faciliter la compatibilité avec d'autres applications, la 8e colonne qui contient le contour des zones est renommée "geometry" plutôt que "geometryProperty".
+
+```{r}
+st_geometry(map_iris) <-"geometry"
+```
+ 
+ 
+
+### Etape 2 : Visualisation des IRIS de la zone d'étude
+
+
+Le nouveau tableau ne comporte plus que 393 unités spatiales et 8 colonnes  On peut visualiser rapidement le résultat à l'aide de la fonction `plot`du package **sf** :
+
+
+```{r}
+par(mar=c(0,0,0,0))
+plot(map_iris$geometry)
+```
+
+
+
+On sauvegarde le résultat dans notre dossier **res** au format interne de R :
+
+```{r}
+saveRDS(object = map_iris,
+        file = "res/map_iris.RDS")
+```
+
+
+
+### Etape 3 : Carte des arrondissements
+
+Comme nous serons amenés à travailler à plusieurs échelles, nous produisons tout de suite un fonds de carte des arrondissements en utilisant les fonctions d'agrégation du packages **sf** combinées avec celles de **dplyr**.
+
+```{r}
+map_arr <- map_iris  %>% group_by(INSEE_COM) %>%
+                        summarise(NOM_COM = min(NOM_COM)) %>%
+                        st_as_sf()
+```
+
+on vérifie que l'agrégation s'est bien passée :
+
+```{r}
+par(mar=c(0,0,0,0))
+plot(map_arr$geometry)
+```
+Et on sauvegarde le fonds de carte
+
+```{r}
+saveRDS(object = map_arr,
+        file = "res/map_arr.RDS")
+```
+
+### Etape 4 : création d'un contour complet de la commune
+
+Enfin, on construit un fonds de carte de l'ensemble de la commune étudiée
+
+```{r}
+# Agrégation
+map_com <- map_iris  %>%     mutate(tot = "Marseille") %>%
+                        group_by(tot) %>%
+                        summarise() %>%
+                        st_as_sf()
+# Visualisation
+par(mar=c(0,0,0,0))
+plot(map_com$geometry)
+
+# Sauvegarde
+saveRDS(object = map_com,
+        file = "res/map_com.RDS")
+```
+
+### Etape 5 : Superposition des trois fonds de carte
+
+La fonction `plot` du package **sf**  permet de superposer des couches cartographiques avec l'instruction `add=TRUE`. Elle permet également de régler les couleurs des polygones (`col=`) ainsi que la couleur et l'épaisseur des frontières (`border=` et `lwd=`). Lorsqu'on ne souhaite pas remplir les polygones on indique `col=NULL`. 
+
+```{r}
+par(mar=c(0,0,0,0))
+plot(map_iris$geometry, col= "lightyellow", border = "gray80", lwd=0.5)
+plot(map_arr$geometry, col= NA, border = "gray50", lwd=1, add=TRUE)
+plot(map_com$geometry, col= NA, border = "gray30", lwd=2, add=TRUE)
+```
+
+
+
+
+## Logement social 2020 
+
+
+Les données sur le logement social sont été téléchargées  sur le site du ministère du développement durable :
+
+
+### Etape 1 : Chargement du fichier
+
+On charge le fichier qui comporte 182735 observation et 70 variables et on le sauvegarde
+
+
+```{r,eval=TRUE}
+rpls<-read.csv("data/rpls_13055.csv")
+head(rpls)
+saveRDS(rpls,"res/rpls.RDS")
+
+```
+
+
+### Etape 2 : Test de superposition géométrique
+
+Le fichier comporte deux colonnes X et Y dont on ignore la projection. On va tester leur superposition sur les fonds de carte précédents pour voir s'il s'agit de la même.
+
+```{r}
+par(mar=c(0,0,0,0))
+plot(map_iris$geometry, col= "lightyellow", border = "gray80", lwd=0.5)
+plot(map_arr$geometry, col= NA, border = "gray50", lwd=1, add=TRUE)
+plot(map_com$geometry, col= NA, border = "gray30", lwd=2, add=TRUE)
+points(rpls$X, rpls$Y, col="red",pch=20, cex=0.2)
+```
+
+Bingo, la superposition est parfaite donc la projection est la même. Il s'agit de la Lambert93 dont le CRS peut-être affiché par la commande `st_crs()` du package `sf` :
+
+```{r}
+st_crs(map_iris)
+```
+
+
+
+### Etape 3 : Carte des logements sociaux
+
+On va alors pouvoir créer un fonds de carte géométrique de ces logements sociaux en indiquant la projection du fonds de carte des Iris.
+
+```{r}
+# Transformation du data.frame en objet sf
+rpls_geom<-st_as_sf(rpls,coords = c("X","Y"))
+
+# Récupération du code EPSG de la projection
+st_crs(rpls_geom)<-st_crs(map_iris)
+
+# Sauvegarde au format .RDS
+saveRDS(rpls_geom, "res/rpls_geom.RDS")
+```
+
+
+## Bilan 
+
+
+Nous avons désormais un dossier **res** qui comporte tous les éléments utiles pour l'analyse de notre zone d'étude.
+
+1. Le recensement des logements ordinaires en 2020 et ses métadonnées
+2. Les fonds de carte par iris, arrondissement et commune.
+3. Le fichier du RPLS pour l'année 2020 en version statistique ou cartographique
+
+
+```{r}
+list.files("res")
+```
+
+

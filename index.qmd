@@ -1,11 +1,13 @@
 ---
-title: "hack"
+title: "Hackaton 2024"
+author: "P. Pistre - C. Grasland - H. Commenges"
 ---
 
-This is a Quarto website.
+## Objectifs de la semaine
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+-   Développer vos connaissances en analyse quantitative des données dans l'espace
+-   Exploiter des données individuelles (recensement de la population, répertoire logements sociaux)
+-   Approfondir votre utilisation du logiciel R
+-   Travailler en groupe et préparer une restitution commune
+-   Répondre à une "commande" dans un temps limité
 
-```{r}
-1 + 1
-```
