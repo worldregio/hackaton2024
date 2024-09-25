@@ -1,19 +1,26 @@
 project:
   type: website
+  output-dir: docs
 
 website:
-  title: "hack"
-  navbar:
+  title: "Hackaton2024"
+  sidebar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
-
+        text: "Index"
+    right: 
+      - icon: github # add icons as navbar buttons
+        href: https://github.com/worldregio/hackaton2024
+        target: _blank
+  page-footer:
+    background: dark
+    left: Copyright 2024, Claude Grasland
 format:
   html:
-    theme: cosmo
+    theme: 
+      light: minty    
+      dark: solar
     css: styles.css
     toc: true
 
-editor: visual
 
