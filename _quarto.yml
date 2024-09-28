@@ -9,7 +9,11 @@ website:
       - href: index.qmd
         text: "Objectifs"
       - href: 01-Data.qmd
-        text: "Préparation des données"        
+        text: "Préparation des données"  
+      - href: 02-agregation-sociale.qmd
+        text: "Agrégation sociale"   
+      - href: 03-agregation-spatiale.qmd
+        text: "Agrégation spatiale"   
  
   navbar:
     right: 

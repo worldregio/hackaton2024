@@ -1,17 +1,20 @@
 ---
 title: "Préparation des données"
 author: "P. Pistre - C. Grasland - H. Commenges"
+embed-resources: true
 ---
 
 
 
 ```{r}
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning= FALSE, 
+                      message = FALSE, 
+                      error=FALSE)
 library(knitr)
-library(dplyr)
-library(data.table)
-library(readr)
-library(sf)
-library(ggplot2)
+library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
+library(data.table,warn.conflicts = F, verbose=F)
+library(sf,quietly = T, verbose=F)
 ```
 
 ## Introduction

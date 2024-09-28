@@ -1,0 +1,278 @@
+---
+title: "Agrégation sociale "
+author: "C. Grasland"
+embed-resources: true
+---
+
+```{r}
+# Options générales
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning= FALSE, 
+                      error=FALSE)
+
+# Selection de packages tidyverse
+library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
+library(tidyr,quietly = T,warn.conflicts = F,verbose = F)
+library(ggplot2,quietly = T,warn.conflicts = F,verbose = F)
+
+# packages de cartographie
+library(sf,quietly = T, verbose=F)
+
+# Packages d'enquête
+#library(xtable)
+#library(survey)
+library(questionr)
+```
+
+## Objectifs
+
+Dans ce premier exercice on ne va pas s'intéresser à la **géographie** des logements sociaux mais à leur **sociologie**. On va donc croiser la variable Y = ménages résidant dans un logement social avec d'autres variables X1 ..Xn décrivant les attributs des ménages et chercher s'il existe des relations statistiquement significatives.
+
+
+### Formuler des questions ou des hypothèses
+
+Qu'elles soient justes ou fausses, les hypothèses permettent de cadrer l'analyse.
+
+1. **Diplôme et logement social** :  Les logements sociaux sont-ils réservés aux ménages les moins diplômés ?
+
+2. **Âge et logement social** : Les logements sociaux sont-ils réservés aux jeunes ménages ?
+
+3. **Logement social, âge et diplômes** : Les personnes diplômés quittent-elles  les logements sociaux dès que leurs revenus progressent
+
+
+### Organiser le travail 
+
+Sutout dans le cadre d'un groupe !
+
+1. **Ne collecter que les données utiles pour répondre aux questions posées** afin de ne pas être tenté de partir dans toutes les directions
+
+2. **Archiver soigneusement les programmes et les résultats** afin de pouvoir reproduire ultérieurement les analyses sur une autre période, un autre territoire
+
+3. **Ne pas attendre d'avoir accumulé tous les résultats pour les commenter** car l'analyse peut suggérer des erreurs ou ouvrir de nouvelles pistes.
+
+4. **Partir des questions et non pas des outils** faute de quoi on va trouver des réponses (42 ...) sans savoir quelle est la question. 
+
+
+### Chargement des données
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=T}
+tab_ind<-readRDS("res/tabmen.RDS")
+
+head(tab_ind[,1:5],2)
+```
+
+
+### Réviser ses cours de statistiques ...
+
+Selon la nature des variables X et Y vous devrez faire appel à des méthodes statistiques différentes. Nous allons donner ici deux exemples différents
+
+
+## Exemple 1 : Logement HLM et diplôme
+
+### Préparation de l'analyse 
+
+
+- Soit la relation entre logement en HLM (Y) et Diplôme le plus élevé du chef de ménage (X). Il s'agit de deux variables **catégorielles** (= qualitatives) que l'on va typiquement mettre en relation à l'aide d'un **tableau de contingence** et d'un **test du chi-2**. L'analyse statistique est simple sous R mais il faut tenir compte de trois difficultés
+
+- Le choix de la **population de référence** est important. Ici on va sélectionner les ménages dont la personne de référence est âgée de 25-39 ans
+
+- la sélection ou le regroupement  des **diplômes** est également important car cela va influer sur les résultats du test.
+
+- la **pondération des individus** doit également être prise en compte puisque le recensement est basé sur un sondage
+
+
+### Sélection des individus et des variables
+
+
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=T}
+tab_sel<- tab_ind %>% 
+  filter(AGEMEN8 == "25") %>%
+  select(DIPLM,HLML, IPONDL) 
+
+
+knitr::kable(head(tab_sel,4))
+```
+
+### Recodage des modalités
+
+On cherche le code des modalités CS1 ezt HLML dans le fichier des métadonnées
+
+```{r}
+meta<-readRDS("res/tabmen_meta.RDS")
+metasel <- meta %>% filter(COD_VAR %in% c("DIPLM", "HLML"))
+kable(metasel[,c(1,3,4)])
+```
+
+
+
+On recode les modalités des deux variables en regroupant certaines CSP
+
+
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=T}
+tab_sel$HLML<-as.factor(tab_sel$HLML)
+levels(tab_sel$HLML)<-c("HLM-O","HLM-N",NA)
+tab_sel$DIPLM<-as.factor(tab_sel$DIPLM)
+levels(tab_sel$DIPLM) <- c("< BAC","< BAC","< BAC","< BAC","< BAC","< BAC",
+                         "BAC","BAC",
+                         "BAC+123","BAC+123","> BAC+3","> BAC+3",NA)
+table(tab_sel$DIPLM)
+                        
+
+knitr::kable(head(tab_sel,3))
+```
+
+### Création du tableau de contingence non pondéré (FAUX)
+
+La solution la plus simple semble être l'instruction *table()*
+
+
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=T}
+tab_cont<-table(tab_sel$HLML,tab_sel$DIPLM)
+
+knitr::kable(addmargins(tab_cont))
+```
+
+
+### Création du tableau de contingence pondéré (JUSTE)
+
+On pondère avec *wtd.table()* du package *questionr*.
+
+### programme
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=T}
+library(questionr)
+tab_cont_wtd<-wtd.table(tab_sel$HLML,tab_sel$DIPLM,
+                        weights = tab_sel$IPONDL)
+
+knitr::kable(round(addmargins(tab_cont_wtd),0))
+```
+
+
+## Comparaison des résultats en %
+
+
+- Tableau non pondéré ... légèrement faux !
+
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=F}
+tab_pct<-cprop(tab_cont)
+knitr::kable(tab_pct,digits=1)
+```
+
+- Tableau pondéré ... juste !
+```{r, cache.comments=TRUE,comment=F,message=F, error=FALSE,echo=F}
+tab_pct_wtd<-cprop(tab_cont_wtd)
+knitr::kable(tab_pct_wtd,digits=1)
+```
+
+
+### Visualisation du tableau de contingence
+
+On choisit l'orientation du tableau et on l'affiche avec plot()
+
+```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=T,fig.height=3,fig.width=6 }
+mytable<-wtd.table(tab_sel$DIPLM,tab_sel$HLML,weights = tab_sel$IPONDL)
+plot(mytable)
+```
+
+
+Tant qu'à faire, on améliore la figure avec des paramètres supplémentaires : 
+
+```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=F, fig.height=4,fig.width=6}
+plot(mytable, main = "Logements HLM & Diplôme CM", sub = "Source : INSEE - RP 2018", col=c("lightyellow","lightgreen"))
+```
+
+### Test du Chi-deux
+
+Ce test se réalise facilement sur le tableau de contingence avec l'instruction *chisq.test()* :
+
+```{r, cache.comments=TRUE,comment=F,message=F, comment = "",error=FALSE,echo=T}
+mytest<-chisq.test(mytable)
+mytest
+```
+
+La lecture de la p-value permet de savoir s'il existe une relation significative entre les deux variables.
+
+
+## Visualisation des résidus
+
+Lorsque la relation est significative, on peut visualiser les cases les plus exceptionnelles avec *mosaicplot( ..., shade = T)*
+
+```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=F, fig.height=4,fig.width=6}
+mosaicplot(mytable, main =  "Logements HLM & diplôme CM", sub = "Source : INSEE - RP 2020", shade =T)
+```
+
+## Exemple 2 : HLM et ancienneté d'occupation
+
+Dans ce deuxième exemple, on se propose d'analyser si les habitants des HLM y résident depuis plus longtemps que les habitants d'autres types de logements. On va donc calculer leur ancienneté moyenne puis déterminer à l'aide d'un test d'égalité des moyennes s'il y a des différences significatives.
+
+Nous devons comme précédemment tenir compte des pondérations
+
+### Préparation des données
+
+```{r}
+tab_sel<- tab_ind  %>%
+  select(ANEM,HLML,IPONDL) %>% 
+  filter(ANEM != "999") %>%
+  mutate(ANEM = as.numeric(ANEM)) 
+
+tab_sel$HLML<-as.factor(tab_sel$HLML)
+levels(tab_sel$HLML)<-c("Oui","Non")
+head(tab_sel)
+```
+
+
+### Statistiques non pondérées
+
+On peut commencer par une description rapide sans pondération :
+
+```{r}
+tapply(tab_sel$ANEM, tab_sel$HLML, summary)
+```
+
+On découvre - avec surprise -  que l'ancienneté d'occupation des ménages qui résdient en HLM est plus importante que celle des autres ménages. Est-ce une erreur liée à l'absence de pondération ?
+
+### Moyenne et ecart-types pondérés
+
+On calcule la moyenne et l'écart-type pondérés à l'aide du package `weights`.
+
+```{r}
+library(weights,quietly = T, verbose=F)
+tab_sel %>% group_by(HLML) %>%
+           summarise(moyenne=wtd.mean(ANEM,IPONDL),
+                     variance = wtd.var(ANEM,IPONDL),
+                     ectype = sqrt(variance))
+
+```
+Les valeurs sont différentes mais la conclusion demeure la même : les ménages qui résident en HLM y sont depuis plus longtemps que les autres. Toutefois l'écart-type est également tr§s grand ce qui incité à visualiser les distributions. 
+
+
+
+### Boxplot
+
+```{r}
+ggplot(data = tab_sel)+ aes(x=ANEM, y = HLML) +
+      geom_boxplot() +
+      scale_x_continuous("Ancienneté d'occupation (en année)") +
+      scale_y_discrete("Ménages logés en HLM") +
+      ggtitle("Ancienneté d'occupation selon la résdience en HLM à Marseille",
+              subtitle = "Source : INSEE RP 2020") + 
+      theme_gray()
+         
+```
+
+Il y a effectivement un décalage, aussi bien pour la moyenne, la médiane et les quartiles. Pour conclure on va donc réaliser un test.
+
+### Test d'égalité des moyennes
+
+```{r}
+t.test(ANEM~HLML, data=tab_sel)
+```
+
+On peut conclure cette fois-ci sans risque d'erreur (p < 0.001) que les habitants des HLM y résident depuis plus longtemps que ceux des autres logements à Marseille en 2020. 
+
+
+
+
+
+
+
+
