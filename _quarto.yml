@@ -14,7 +14,9 @@ website:
         text: "Agrégation sociale"   
       - href: 03-agregation-spatiale.qmd
         text: "Agrégation spatiale"   
- 
+      - href: 04-carto-statique.qmd
+        text: "Cartographie statique"  
+        
   navbar:
     right: 
       - icon: github # add icons as navbar buttons

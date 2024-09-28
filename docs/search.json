@@ -56,6 +56,62 @@
     "text": "Développer vos connaissances en analyse quantitative des données dans l’espace\nExploiter des données individuelles (recensement de la population, répertoire logements sociaux)\nApprofondir votre utilisation du logiciel R\nTravailler en groupe et préparer une restitution commune\nRépondre à une “commande” dans un temps limité"
   },
   {
+    "objectID": "04-carto-statique.html",
+    "href": "04-carto-statique.html",
+    "title": "Carto statique",
+    "section": "",
+    "text": "# Options générales\nlibrary(knitr)\nknitr::opts_chunk$set(echo = TRUE, \n                      warning= FALSE, \n                      message = FALSE, \n                      error=FALSE)\n\n# Selection de packages tidyverse\nlibrary(dplyr,quietly = T,warn.conflicts = F,verbose = F)\n#library(tidyr,quietly = T,warn.conflicts = F,verbose = F)\nlibrary(ggplot2,quietly = T,warn.conflicts = F,verbose = F)\n\n# packages de cartographie\nlibrary(sf,quietly = T, verbose=F)\n\nLinking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE\n\nlibrary(mapsf,quietly = T, verbose=F)\n\n# Packages d'enquête\n#library(xtable)\n#library(survey)\n#library(questionr)"
+  },
+  {
+    "objectID": "04-carto-statique.html#le-package-map_sf",
+    "href": "04-carto-statique.html#le-package-map_sf",
+    "title": "Carto statique",
+    "section": "Le package map_sf",
+    "text": "Le package map_sf\nLe package mapsf permet de réaliser des cartes statiques de très haute qualité. Il a en effet été mis au point par des cartographes et des géomaticiens professionnels de l’UMS RIATE. Il prend la suite du package cartography dont la maintenance demeurera assuré quelque temps encore mais ne fera plus l’objet de développements futurs. Le package mapsf présente l’avantage d’être totalement compatibvle avec le package sf ce qui n’était pas autant le cas pour le package cartography, plus ancien, et créé pour être compatible avec l’ancien package sp.\nOn trouvera la documentation du package mapsf à l’adresse suivante :\nhttps://riatelab.github.io/mapsf/index.html"
+  },
+  {
+    "objectID": "04-carto-statique.html#création-dun-template-cartographique",
+    "href": "04-carto-statique.html#création-dun-template-cartographique",
+    "title": "Carto statique",
+    "section": "Création d’un template cartographique",
+    "text": "Création d’un template cartographique\nNous allons dans un premier temps apprendre à créer un fonds de carte vierge mais comportant tout l’habillage nécessaire (“template”). Pour cela nous allons charger différentes couches cartographiques correspondant respectivement aux communes, aux arrondissements et aux iris :\n\nmap_iris&lt;-readRDS(\"res/map_iris.RDS\")\nmap_com &lt;-readRDS(\"res/map_com.RDS\")\nmap_arr &lt;-readRDS(\"res/map_arr.RDS\")\n\nmap_iris_hlm&lt;-readRDS(\"res/map_iris_hlm.RDS\")\n\n\ntracé d’un fonds de carte vierge\nLa fonction mf_map() avec le paramètre type = \"base\"permet de tracer une carte vide\n\n mf_map(map_iris, type = \"base\")\n\n\n\n\n\n\nSuperposition de couches\nOn peut toutefois ajouter toute une série de paramètres supplémentaire (col=, border=, lwd=, …) et superposer plusieurs fonds de carte avec le paramètre add = TRUE. L’ajout de la fonction layout permet de rajouter un cadre une légende.\n\n\nprogramme\n\n# Trace les Iris avec des paramètres\nmf_map(map_iris,  type = \"base\", \n       col = \"lightyellow\", border=\"gray50\",lwd=0.3)\n# Ajoute les contours des arrondissements\nmf_map(map_arr,  type = \"base\", \n       col = NA,border=\"red\",lwd=0.5,\n       add = TRUE)\n# Ajoute les contours des département\nmf_map(map_com,  type = \"base\", \n       col = NA,border=\"red\",lwd=1,\n       add = TRUE)\n# Ajoute un cadre, un titre et des sources\nmf_layout(title = \"Marseille\", \n          credits = \"Sources : IGN et INSEE\")\n\n\n\n\n\n\nAjout d’un thème\nOn peut finalement modifier l’ensemble de la carte en lui ajoutant une instruction mf_theme() qui peut reprendre des styles existants ( “default”, “brutal”, “ink”, “dark”, “agolalight”, “candy”, “darkula”, “iceberg”, “green”, “nevermind”, “jsk”, “barcelona”) mais aussi créer ses propres thèmes\n\n\nprogramme\n\n#Choix du thème\nmf_theme(\"darkula\")\n# Trace les Iris avec des paramètres\nmf_map(map_iris,  type = \"base\",\n       border=\"white\",\n        lwd=0.3)\n# Ajoute les contours des arrondissements\nmf_map(map_arr,  type = \"base\", \n       col = NA, lwd=1,\n       add = TRUE)\n# Ajoute les contours des communes\nmf_map(map_com,  type = \"base\", \n       col = NA, lwd=2,\n       add = TRUE)\n# Ajoute un cadre, un titre et des sources\nmf_layout(title = \"Marseille\", \n          credits = \"Sources : IGN et INSEE\")"
+  },
+  {
+    "objectID": "04-carto-statique.html#ajout-de-texte",
+    "href": "04-carto-statique.html#ajout-de-texte",
+    "title": "Carto statique",
+    "section": "Ajout de texte",
+    "text": "Ajout de texte\nOn peut ajouter une couche de texte avec la fonction mf_label(). Par exemple, on va ajouter à la carte précédente le code insee des communes\n\nrésultat\n\nmf_theme(\"agolalight\")\n\n# Trace les Iris avec des paramètres\nmf_map(map_iris, \n       type = \"base\", \n       col = \"lightyellow\",\n       border=\"gray80\",\n       lwd=0.3)\n\n# Ajoute les contours des arrondissements\nmf_map(map_arr, \n       type = \"base\", \n       col = NA,\n       border=\"red\",\n       lwd=1,\n       add = TRUE)\n\n# Ajoute les contours des communes\nmf_map(map_com,  type = \"base\", \n       col = NA,border=\"red\",lwd=2,\n       add = TRUE)\n\n# Ajoute les codes des arrondissements\nmap_arr$num&lt;-substr(map_arr$NOM_COM,10,13)\nmf_label(map_arr, \n         var=\"num\",\n         cex=0.7, \n         col=\"blue\",\n         overlap = FALSE)\n\n# Ajoute un cadre, un titre et des sources\nmf_layout(title = \"Arrondissements et Iris de Marseille en 2020\", \n          frame = TRUE,\n          credits = \"Sources : IGN et INSEE\")"
+  },
+  {
+    "objectID": "04-carto-statique.html#carte-de-stock",
+    "href": "04-carto-statique.html#carte-de-stock",
+    "title": "Carto statique",
+    "section": "Carte de stock",
+    "text": "Carte de stock\nUne carte de stock représente la localisation de quantités que l’on peut aditionner et dont le total a un sens. Par exemple un nombre d’habitants, un nombre de ménages, un nombre d’automobiles. Ce quantités doivent être représentées par des figures (cercles, carrés, …) dont la surface est proportionelle au stock afin que l’oeil du lecteur puisse les aditionner visuellement.\nDans le package mapsf, on réalise ce type de carte à l’aide de la fonction mf_map()en lui donnant le paramètre type=\"prop\".\nOn va tenter à titre d’exemple de représenter la distribution du nombre de ménages ordinaires occupant un logement HLM par IRIS :\n\nCarte de stock minimale\n\n# Trace les contours des communes\nmf_map(x= map_iris, \n       type = \"base\")\n\n# Ajoute le nombre de ménages par IRIS\nmf_map(x =map_iris_hlm, \n      type =\"prop\",\n      var = \"HLM_1\",\n      add=TRUE)\n\n\n\n\nMais le résultat est peu satisfaisant car les cercles sont trop grands. Il faut en pratique toujours effectuer un réglage de ceux-ci avec l’instruction inches=\n\n\nCarte de stock habillée\n\nmf_theme(\"agolalight\")\nmf_map(map_iris, type = \"base\",  \n       col = \"lightyellow\",border=\"gray80\", lwd=0.3)\nmf_map(map_arr, type = \"base\", \n       col = NA,border=\"black\",lwd=1,add = TRUE)\n\nmf_map(map_iris_hlm, var = \"HLM_1\",type = \"prop\",\n  inches = 0.05, col = \"red\",leg_pos = \"left\",  \n  leg_title = \"Nombre de ménages\", add=TRUE)\n\nmf_layout(title = \"Distribution des logements HLM en 2020\", \n          frame = TRUE,\n          credits = \"Sources : IGN et INSEE\")"
+  },
+  {
+    "objectID": "04-carto-statique.html#carte-choroplèthe",
+    "href": "04-carto-statique.html#carte-choroplèthe",
+    "title": "Carto statique",
+    "section": "Carte choroplèthe",
+    "text": "Carte choroplèthe\nUne carte choroplèthe ou d’intensité représente un phénomène relatif dont la somme n’a pas de sens. Par exemple, il serait absurde d’aditionner les % de logement HLM des IRIS du Val de Marne. Ces variables d’intensité caractèrisent donc l’état général d’une zone (choros) et elles vont être représentées par une couleur appliquée à toute la surface de la zone, d’où leur nom de cartes choroplèthes.\nLa fonction du package mapsf adaptée aux variables d’intensité est la fonction mf_map()munie du paramètre type = \"choro\".\nOn va prendre l’exemple de la part des ménages qui résident en HLM\n\nCarte choroplèthe minimale\nSi on ne précise rien, la carte est réalisée à l’aide de la palette par défaut avec un découpage des classes en quantiles (effectifs égaux).\n\n\nprogramme\n\n# Carte choroplèthe\nmf_map(\n  x = map_iris_hlm, \n  var = \"HLM_pct\",\n  type = \"choro\")\n\n\n\n\n\n\nCarte choroplèthe habillée\nOn peut arriver à une carte beaucoup plus satisfaisante en contrôlant l’ensemble des paramètres de couleur et de découpage des classes. Puis en superposant les contours de communes au dessus de la carte des IRIS pour faciliter le repérage.\n\n\nprogramme\n\nmybreaks = c(0, 10,20,30,40,50,\n             60,70,80,90, 100)\nmypal &lt;- mf_get_pal(n = 10, \n                    pal = \"Reds\",rev = T)\n# Carte choroplèthe des iris\nmf_map( map_iris_hlm, var = \"HLM_pct\",\n        type = \"choro\",\n        breaks = mybreaks,pal = mypal, \n        border=NA,\n       col_na = \"gray80\",leg_title = \"% HLM\",\n       leg_val_rnd = 0)\n# Contour des arrondissements et cadre\nmf_map(map_arr, type = \"base\", col = NA,\n       border=\"black\",lwd=1,add = TRUE)\nmf_layout(title = \"% de ménages en HLM au RP  2020\", \n          frame = TRUE,\n          credits = \"Sources : IGN et INSEE\")"
+  },
+  {
+    "objectID": "04-carto-statique.html#carte-stock-choroplèthe-1",
+    "href": "04-carto-statique.html#carte-stock-choroplèthe-1",
+    "title": "Carto statique",
+    "section": "Carte stock + choroplèthe (1)",
+    "text": "Carte stock + choroplèthe (1)\nOn peut combiner les deux modes cartographiques par superposition :"
+  },
+  {
+    "objectID": "04-carto-statique.html#carte-stock-choroplèthe",
+    "href": "04-carto-statique.html#carte-stock-choroplèthe",
+    "title": "Carto statique",
+    "section": "Carte stock + choroplèthe",
+    "text": "Carte stock + choroplèthe\nMais les cercles dissimuent alors les plages de couleur, aussi on peut utiliser le type prop_choro qui place la variable choroplèthe à l’intérieur des cercles\n\nmf_theme(\"agolalight\")\nmybreaks = c(0, 10,20,30,40,50,60,70,80,90, 100)\nmypal &lt;- mf_get_pal(n = 10, pal = \"Reds\", rev=T)\nmf_map(map_iris_hlm, type = \"base\",  \n       col = \"gray80\",border=\"white\", lwd=0.3)\nmf_map(map_arr, type = \"base\", \n       col = NA,border=\"white\",lwd=1,add = TRUE)\nmf_prop_choro( x = map_iris_hlm,  var = c(\"TOT\", \"HLM_pct\"), \n  inches = 0.06, col_na = \"grey\", pal=mypal,\n  breaks = mybreaks, nbreaks = 4, lwd = 0.1,\n  leg_pos = c(\"right\", \"left\"),leg_val_rnd = c(0,0),\n  leg_title = c(\"nb. ménages\", \"% HLM\"),\n  add = TRUE)\nmf_layout(title = \"Les ménages ordinaires en HLM  2020\", \n          frame = TRUE, credits = \"Sources : IGN et INSEE\")"
+  },
+  {
     "objectID": "03-agregation-spatiale.html",
     "href": "03-agregation-spatiale.html",
     "title": "Agrégation spatiale",
