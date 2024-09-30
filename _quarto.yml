@@ -15,17 +15,19 @@ website:
     - section: "DONNEES RP"
       contents: 
       - href: 02-agregation-sociale.qmd
-        text: "Agrégation sociale"   
+        text: "Analyse sociologique"   
       - href: 03-agregation-spatiale.qmd
-        text: "Agrégation spatiale"   
+        text: "Agrégation par iris"   
       - href: 04-carto-statique.qmd
-        text: "Cartographie statique" 
+        text: "Cartographie mapsf" 
     - section: "DONNEES RPLS"
       contents: 
       - href: 05-exploration.qmd
         text: "Exploration"   
-
-        
+      - href: 06-agregation_point.qmd
+        text: "Agrégation par iris ou adresse"   
+      - href: 07-carto_dyn.qmd
+        text: "Cartographie mapview"         
   navbar:
     right: 
       - icon: github # add icons as navbar buttons

@@ -1,0 +1,179 @@
+---
+title: "Agrégation spatiale"
+author: "C. Grasland"
+embed-resources: true
+---
+
+```{r}
+# Options générales
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning= FALSE, 
+                      error=FALSE)
+
+# Selection de packages tidyverse
+library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
+#library(tidyr,quietly = T,warn.conflicts = F,verbose = F)
+#library(ggplot2,quietly = T,warn.conflicts = F,verbose = F)
+
+
+
+# packages de cartographie
+library(sf,quietly = T, verbose=F)
+library(mapsf)
+
+
+
+```
+
+
+## Agrégation par IRIS
+
+Il existe deux possibilités :
+
+1. Soit agréger à l'aide du code IRIS fourni dans la base des logements
+2. Soit intersecter géométriquement la carte des logements avec celle des IRIS
+
+On va retenir la première solution qui est plus simple ... si les code IRIS sont exacts. 
+
+### Nombre de logements sociaux par IRIS
+
+```{r}
+# Chargement du fichier des IRIS
+map_iris<-readRDS("res/map_iris.RDS")
+
+# Chargement du fichier des logements
+logt<-readRDS("res/rpls.RDS")
+
+# Création du code IRIS
+logt <- logt %>% mutate(CODE_IRIS = as.numeric(paste0(PLG_CODE_COMMUNE2021, "0",PLG_IRIS2021)))
+
+# Agrégation
+logt_iris<-logt %>% st_drop_geometry %>% 
+              group_by(CODE_IRIS) %>% 
+              summarise(nb = n()) 
+
+map_iris_logt <- left_join(map_iris, logt_iris)
+```
+
+### Carte par IRIS
+
+```{r}
+mf_map(map_iris, type="base",col="lightyellow")
+mf_map(map_iris_logt, 
+       type="prop",
+       var="nb",
+       col="red",
+       inches=0.05,
+       leg_title = "nb. de logements")
+mf_layout(title = "Distribution des logements sociaux par IRIS",
+          credits = "Source : RPLS 2020 et IGN",
+          frame = TRUE,
+          scale = TRUE)
+```
+
+
+## Agrégation par adresse
+
+Nous revenons sur le **package sf (spatial features)** que nous avons déjà rencontré au moment de la création de cartes thématiques par IRIS ou communes à l'aide du package `mapsf`. 
+
+Ici le package sf va être utilisé pour cartographier non pas des zones mais des localisations ponctuelles. Il pourra être à nouveau couplé avec le logiciel de **cartogaphie statique** comme mapsf , afin par exemple de placer les localisations des logements sociaux au dessus du fonds de carte des IRIS ou communes.
+
+Mais il pourra aussi servir de base à des **cartographies dynamiques** permettant de placer les points sur des réseaux de rue et plus généralement sur des "tuiles" cartographiques permettant d'effectur des zoom. On utilisera à cet effet d'autres packages comme `leaflet` ou sa version simplifiée `mapview`. 
+
+
+### Chargement des données
+
+Nous chargeons le fichier des logements dans sa version géométrique c'est-à-dire comportant la position géométrique des unités spatiales. Nous le recodons et nous lui ajoutons les coordonnées X et Y des points de localisation.
+
+```{r}
+
+rpls<-readRDS("res/rpls_geom.RDS")
+
+sel<-rpls %>% select(nbp = NBPIECE,
+                     sup = SURFHAB,
+                     anc = CONSTRUCT,
+                     ene = DPEENERGIE,
+                     fin = FINAN) 
+
+sel$fin <- case_when(sel$fin == "10" ~ "1.PLAI",
+                     sel$fin == "11" ~ "1.PLAI",
+                     sel$fin == "12" ~ "2.PLUS",
+                     sel$fin == "13" ~ "2.PLUS",
+                     sel$fin == "14" ~ "3.PLS",
+                     sel$fin == "15" ~ "3.PLS",
+                     sel$fin == "16" ~ "4.PLI",
+                     sel$fin == "17" ~ "4.PLI",
+                     sel$fin == "50" ~ "2.PLUS",
+                     sel$fin == "51" ~ "2.PLUS",
+                     sel$fin == "52" ~ "2.PLUS",
+                     sel$fin == "53" ~ "2.PLUS",
+                     sel$fin == "54" ~ "2.PLUS",
+                     sel$fin == "55" ~ "2.PLUS",
+                     .default = "0.Autre"
+                     )
+
+
+
+coo<-st_coordinates(sel)
+sel$X<-coo[,1]
+sel$Y<-coo[,2]
+
+
+sel<-st_drop_geometry(sel)
+
+
+```
+
+
+### Agrégation par pseudo-adresse
+
+On va considérer que chaque point (X,Y) correspond à une adresse - ce qui n'est pas toujours vrai - et reconstiuer un fichier agrégé par pseudo-adresse. On devrait obtenir ainsi une carte plus précise que la précédente.  
+
+```{r}
+map_adr<-sel %>% st_drop_geometry %>% 
+              group_by(X,Y) %>% 
+              summarise(nb = n(),
+                        nbp_moy = mean(nbp),
+                        sup_moy = mean(sup),
+                        anc_moy = mean(anc),
+                        ene_min = min(ene),
+                        fin_min = min(fin)) 
+
+map_adr<-st_as_sf(map_adr,coords = c("X","Y"))
+st_crs(map_adr)<-2154
+head(map_adr)
+```
+
+
+### Carte par adresse
+
+On procède à un test rapide de superposition sur la carte communale.
+
+```{r}
+map_com<-readRDS("res/map_com.RDS")
+mf_map(map_com, type="base",col="lightyellow")
+mf_map(map_adr, 
+       type="prop",
+       var="nb",
+       col="red",
+       border = NA,
+       inches=0.05,
+       leg_title = "nb. de logements")
+mf_layout(title = "Distribution des logements sociaux par adresse",
+          credits = "Source : RPLS et IGN",
+          frame = TRUE,
+          scale = TRUE)
+```
+
+
+### Sauvegarde
+
+On sauvegarde le fonds de carte des données par adresse
+
+```{r}
+saveRDS(map_adr,file = "res/logt_adr.RDS")
+```
+
+
+
