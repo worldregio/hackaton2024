@@ -147,7 +147,7 @@ knitr::kable(round(addmargins(tab_cont_wtd),0))
 ```
 
 
-## Comparaison des résultats en %
+### Comparaison des résultats en %
 
 
 - Tableau non pondéré ... légèrement faux !
@@ -192,7 +192,7 @@ mytest
 La lecture de la p-value permet de savoir s'il existe une relation significative entre les deux variables.
 
 
-## Visualisation des résidus
+### Visualisation des résidus
 
 Lorsque la relation est significative, on peut visualiser les cases les plus exceptionnelles avec *mosaicplot( ..., shade = T)*
 

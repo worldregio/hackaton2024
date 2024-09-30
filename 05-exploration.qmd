@@ -1,0 +1,345 @@
+---
+title: "Exploration"
+author: "C. Grasland"
+embed-resources: true
+---
+
+```{r}
+# Options générales
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning= FALSE, 
+                      error=FALSE)
+
+# Selection de packages tidyverse
+library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
+library(tidyr,quietly = T,warn.conflicts = F,verbose = F)
+library(ggplot2,quietly = T,warn.conflicts = F,verbose = F)
+
+# packages de cartographie
+#library(sf,quietly = T, verbose=F)
+
+# Packages d'enquête
+#library(xtable)
+#library(survey)
+#library(questionr)
+```
+
+
+
+
+## Préparation des données
+
+Le tableau du RPLS demande à être préparé soigneusement avant toute analyse statistique
+
+### Sélection des variables
+
+On décide de sélectionner un nombre limité d'indicateurs dont on veut mesurer la distribution globale pour l'ensemble de la zone d'étude. 
+
+
+```{r}
+rpls<-readRDS("res/rpls.RDS")
+
+sel<-rpls %>% select(nbp = NBPIECE,
+                     sup = SURFHAB,
+                     anc = CONSTRUCT,
+                     ene = DPEENERGIE,
+                     fin = FINAN) 
+
+```
+
+### Recodage du type de financement
+
+On procède à un recodage du type de financement en quatre catégories correspondant aux différents niveaux de logement social.  On décide d'éliminer les cas complexes qui ne rentrent pas dans les quatre catégories
+
+**N.B. Avant de transformer la variable en facteur, on a indiqué un order 1. 2. 3. 4.   devant chaque type de financement afin que les graphiques qu nous réaliserons utilise un ordre logique.** 
+
+```{r}
+sel$fin <- case_when(sel$fin == "10" ~ "1.PLAI",
+                     sel$fin == "11" ~ "1.PLAI",
+                     sel$fin == "12" ~ "2.PLUS",
+                     sel$fin == "13" ~ "2.PLUS",
+                     sel$fin == "14" ~ "3.PLS",
+                     sel$fin == "15" ~ "3.PLS",
+                     sel$fin == "16" ~ "4.PLI",
+                     sel$fin == "17" ~ "4.PLI",
+                     sel$fin == "50" ~ "2.PLUS",
+                     sel$fin == "51" ~ "2.PLUS",
+                     sel$fin == "52" ~ "2.PLUS",
+                     sel$fin == "53" ~ "2.PLUS",
+                     sel$fin == "54" ~ "2.PLUS",
+                     sel$fin == "55" ~ "2.PLUS",
+                     .default = NA
+                     )
+sel$fin<-as.factor(sel$fin)
+```
+
+### Recodage de la consommation d'énergie
+
+```{r}
+sel$ene<-as.factor(sel$ene)
+```
+
+
+### Résumé rapide
+
+```{r}
+summary(sel)
+```
+
+## Analyse univariée
+
+On décide d'analyser plus précisément les caractéristiques des logements en fonction de leur type de financement. On définit une palette que l'on juge convenable pour représenter les différents types de logement.
+
+### Type de financement
+
+On réalise un tableau de dénombrement : 
+
+```{r}
+sel %>% filter(is.na(fin)==FALSE) %>% 
+         count(fin) %>%
+         mutate(pct=100*n/sum(n))
+```
+
+
+On utilise geom_bar pour créer un diagramme en bâtons. On ajoute une couleur avec un ordre indiquant l'ordre implicite des bénéficiaires du plus social au moins social
+
+```{r}
+mypal<-c("red","orange","yellow","lightyellow")
+
+sel  %>% filter(is.na(fin)==FALSE) %>%
+              ggplot()+
+              aes(x=fin,fill=fin) + 
+              geom_bar(stat="count")+
+              scale_fill_manual(values=mypal) +
+              scale_x_discrete("Type de logement") +
+              scale_y_continuous("Effectif") +
+              ggtitle("Frequence des types de logements sociaux",
+                      subtitle = "Source : RPLS 2020" ) +
+              theme_light()
+
+
+```
+
+### Type énergétique
+
+On reprend le programme précédent : 
+
+```{r}
+sel %>% filter(is.na(ene)==FALSE) %>% 
+         count(ene) %>%
+         mutate(pct=100*n/sum(n))
+```
+
+On réalise un diagramme en bâtons où l'on essaye de retrouver la palette de couleur des classes énergétiques
+
+```{r}
+
+mypal<-c("darkgreen","green4","lightgreen","yellow","orange","red1","brown")
+sel %>% filter(is.na(ene)==F) %>%
+              ggplot() + 
+              aes(x=ene, fill=ene) + 
+              geom_bar(stat="count",na.rm = T,) + 
+              scale_fill_manual(values=mypal) +
+              scale_x_discrete("Classe énergétique du logement") +
+              scale_y_continuous("Effectif") +
+              ggtitle("Classe énergétique des logements sociaux",
+                      subtitle = "Source : RPLS 2020" ) +
+              theme_light()
+
+```
+
+
+### Nombre de pièces
+
+Cette variable quantitative discrètre peut être analysée de deux façons différentes. On choisit isic de la traiter comme une variable qualitative : 
+
+
+
+```{r}
+sel %>% filter(is.na(nbp)==FALSE) %>% 
+         count(nbp) %>%
+         mutate(pct=100*n/sum(n))
+```
+
+
+On transforme en variable catégorielle avant de réaliser le diagramme en bâtons
+
+```{r}
+sel %>% ggplot() + aes(x=as.factor(nbp)) + 
+              geom_bar(stat="count") +
+              scale_x_discrete("Nombre de pièces") +
+              scale_y_continuous("Effectif") +
+              ggtitle("Taille des logements sociaux (en nombre de pièces)",
+                      subtitle = "Source : RPLS 2020" ) +
+              theme_light()
+ 
+```
+
+
+### Superficie habitable
+
+Là il s'agit d'une véritable variable quantitative continue. 
+
+
+```{r}
+summary(sel$sup)
+```
+
+
+On construit un histogramme puisque la variable est quantitative et continue. On utilise la fonction densité de probabilité pour mieux repérer les pics.
+
+```{r}
+
+ggplot(sel %>% filter(is.na(sup)==F, sup<130))+ 
+             aes(x=sup) + 
+              geom_histogram(stat = "density") +
+              scale_x_continuous("Superficie habitable en m2") +
+              scale_y_continuous("Probabilité") +
+                ggtitle("Taille des logements sociaux (en superficie)",
+                      subtitle = "Source : RPLS 2020" ) +
+              theme_light()
+
+```
+
+
+### Ancienneté 
+
+On construit un histogramme puisque la variable est quantitative et continue. On utilise la fonction densité de probabilité pour mieux repérer les pics.
+
+```{r}
+
+ggplot(sel %>% filter(is.na(anc)==F, anc>1900))+ 
+             aes(x=anc) + 
+              geom_histogram(stat="density")+
+              scale_x_continuous("Date de construction des logements") +
+              scale_y_continuous("Probabilité")
+
+```
+
+
+
+## Analyse bivariée
+
+On donne juste quelques possibilités à titre d'exemple.
+
+### X et Y qualitatives
+
+Les deux variables sont de type qualitatif. On va donc créer un tableau de contingence, analyser les profils puis utiliser un test du chi-2. 
+
+```{r}
+# Tableau de contingence
+tab<-table(sel$fin,sel$ene)
+kable(addmargins(tab), caption="Tableau de contingence")
+
+# Pourcentages en ligne
+tab2<-100*prop.table(addmargins(tab,1),1)
+kable(addmargins(tab2,2), digits=1, caption="Profil en ligne")
+
+# Graphique
+mypal<-c("darkgreen","green4","lightgreen","yellow","orange","red1","brown")
+plot(tab, col=mypal, main = "Type de logement et isolation énergétique")
+
+
+# Test du chi-2
+test<-chisq.test(tab)
+test
+```
+
+
+
+Le test du chi2 est incorrect car certaines catégories énergétiques sont trop peu représentées. On procède donc à des regroupements et on applique le même programme.
+
+
+```{r}
+# Fusion des classes
+sel$ene4<-sel$ene
+levels(sel$ene4)<-c("AB","AB","C","D","EFG","EFG","EFG")
+
+# Tableau de contingence
+tab<-table(sel$fin,sel$ene4)
+kable(addmargins(tab), caption="Tableau de contingence")
+
+# Pourcentages en ligne
+tab2<-100*prop.table(addmargins(tab,1),1)
+kable(addmargins(tab2,2), digits=1, caption="Profil en ligne")
+
+# Graphique
+
+mypal<-c("darkgreen","lightgreen","yellow","orange")
+plot(tab, col=mypal, main = "Type de logement et isolation énergétique")
+
+
+# Test du chi-2
+test<-chisq.test(tab)
+test
+
+
+
+
+
+```
+
+
+### Y quantitative et X qualitative
+
+On va prendre comme exemple la relation entre la surface des logements et leur type de financement. On commence par calculer les paramètres principaux, puis on fait un graphique et enfin on teste l'existence d'une relation.
+
+
+
+```{r}
+# Paramètres principaux
+tapply(sel$sup, sel$fin,summary, simplify=T)
+
+# Boxplot
+sel %>% filter(is.na(fin) == F) %>%
+                   ggplot() + aes(y=sup, x=fin) +
+                   geom_boxplot() +
+                   scale_x_discrete("Type de logement") +
+                   scale_y_continuous("Superficie habitable") +
+                   ggtitle("Superficie en fonction du type de logement social",
+                           subtitle = "Source : RPLS 2020" )
+
+# Analyse de variance
+mod <- lm(sel$sup~sel$fin)
+summary(mod)
+
+
+```
+
+On effectue un test : 
+
+```{r}
+mod<-lm(sel$sup~sel$fin)
+summary(mod)
+```
+
+### Superficie et ancienneté
+
+On calcule le coefficient de corrélation et l'équation de la droite de régression décrivant la relation entre superficie et date de construction. 
+
+```{r}
+
+cor.test(sel$anc, sel$sup)
+
+mod2<-lm(sel$sup~sel$anc)
+summary(mod2)
+```
+
+On réalise un graphique avec ggplot qui reproduit l'ajustement linéaire utilisé :
+
+
+```{r}
+
+sel %>% ggplot() +aes(x=anc, y = sup) +
+                  geom_point(size=0.1) +
+                  geom_smooth(method="lm",col="red") +
+                  geom_smooth(col="blue", se=F)+
+                  scale_x_continuous("Date de construction") +
+                  scale_y_continuous("Surface habitable",limits = c(0,150)) +
+                  ggtitle("Surface habitable et ancienneté des logements sociaux") +
+                  theme_light()
+          
+          
+```
+

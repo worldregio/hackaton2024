@@ -6,16 +6,25 @@ website:
   title: "Hackaton2024"
   sidebar:
     contents:
+    - section: "INTRODUCTION"
+      contents:
       - href: index.qmd
         text: "Objectifs"
       - href: 01-Data.qmd
         text: "Préparation des données"  
+    - section: "DONNEES RP"
+      contents: 
       - href: 02-agregation-sociale.qmd
         text: "Agrégation sociale"   
       - href: 03-agregation-spatiale.qmd
         text: "Agrégation spatiale"   
       - href: 04-carto-statique.qmd
-        text: "Cartographie statique"  
+        text: "Cartographie statique" 
+    - section: "DONNEES RPLS"
+      contents: 
+      - href: 05-exploration.qmd
+        text: "Exploration"   
+
         
   navbar:
     right: 
@@ -30,6 +39,7 @@ format:
     theme: 
       light: minty    
       dark: solar
+    code-fold: true
     css: styles.css
     toc: true
 
