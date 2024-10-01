@@ -1,13 +1,83 @@
 ---
 title: "Hackaton 2024"
+subtitle: "Semaine mutualisée Master 2 Carthagéo-Géoprisme"
 author: "P. Pistre - C. Grasland - H. Commenges"
+date: "Du 07/10/2024 au 11/10/2024"
 ---
+
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
 
 ## Objectifs de la semaine
 
--   Développer vos connaissances en analyse quantitative des données dans l'espace
--   Exploiter des données individuelles (recensement de la population, répertoire logements sociaux)
--   Approfondir votre utilisation du logiciel R
--   Travailler en groupe et préparer une restitution commune
--   Répondre à une "commande" dans un temps limité
+- Développer vos connaissances en analyse quantitative des données dans l'espace
+- Exploiter des données individuelles (recensement de la population, répertoire des logements sociaux)
+- Approfondir votre utilisation du logiciel R
+- Travailler en groupe et préparer une restitution commune
+- Répondre à une "commande" dans un temps limité
 
+## Organisation de la semaine
+
+### Planning des intervenants et contenu des journées
+
+- 07/10 : Organisation de la semaine et présentation des données (matin, Pierre Pistre)
+- 07/10 : Chargement des données et prise en main des données individuelles de recensement (après-midi, Claude Grasland)
+- 08/10 : Prise en main des données individuelles sur les logements sociaux (matin, Pierre Pistre)
+- 08/10 : Approfondissements statistiques et cartographiques (semis de points... ; après-midi, Claude Grasland)
+- 09/10 et 10/10 : Analyses temporelles et accompagnement des projets de groupe (Hadrien Commenges)
+- 11/10 : Finalisation des projets de groupe en autonomie (matin) et restitution orale (après-midi)
+
+### Horaires des séances et planning des salles (Bâtiment Olympe de Gouges, Campus des Grands Moulins, Université Paris Cité)
+- 07/10 : 9h30-12h30 et 13h30-17h30 : salle M019 (étage Mezzanine)
+- 08/10 : 9h30-12h30 et 13h30-17h30 : salle 209 (2ième étage)
+- 09/10 : 9h30-12h30 et 13h30-17h30 : salle 209 (2ième étage)
+- 10/10 : 9h30-12h30 et 13h30-17h30 : salle 209 (2ième étage)
+- 11/10 : 9h30-12h30 et 13h30-17h30 : salle 209 (2ième étage)
+
+## Données utilisées
+
+1. (sources) Base de données principales :
+- Fichier “Logements oridinaires” (LOGEMT) 2020 (localisations : IRIS, communes. . . ), produit par
+l’INSEE à partir du recensement de la population. Données en accés libre : https://www.insee.fr/fr/statistiques/7705908?sommaire=7637890
+- Répertoire des logements locatifs des bailleurs sociaux en 2020, produit par le Ministère de la Transition écologique. Données en accès libre : https://www.data.gouv.fr/fr/datasets/repertoire-des-logements-locatifs-des-bailleurs-sociaux/
+2. (sources) Autres fichiers : 
+- Shapefile Contours IRIS® (IGN) : https://geoservices.ign.fr/contoursiris
+
+## Exercice d'application en groupe
+
+### Périmètres de l'exercice
+- Cas d'étude : commune-centre d'une grande agglomération française
+- Objet d'étude : les logements locatifs sociaux et leurs habitants
+- Echelles et mailles géographiques : communes, IRIS, adresses
+
+### Consigne de la "commande"
+- Contexte général légal : la loi relative à la solidarité et au renouvellement urbain (SRU), adoptée le 13 décembre 2000, vise notamment un meilleur équilibre de répartition des logements sociaux en France. Son article 55 oblige "certaines communes à disposer d’un nombre minimum de logements sociaux, proportionnel à leur parc résidentiel" (pour des informations supplémentaires : https://www.ecologie.gouv.fr/larticle-55-loi-solidarite-et-renouvellement-urbain-sru-mode-demploi ; https://www.ecologie.gouv.fr/sru?ville=Mions&code=69283) ; ces communes doivent en particulier "disposer de 25 % de logements sociaux, en regard des résidences principales, d’ici 2025". 
+- Commande : si le logement social est surtout un levier de politique publique en matière de logement et d'action sociale, il est aussi un domaine d'analyse important des inégalités sociospatiales. En 2015, France Stratégie ("Institution autonome placée auprès du Premier ministre, qui contribue à l’action publique par ses analyses et ses propositions") a analysé l'évolution de la ségrégation résidentielle - au sens d'une concentration spatiale plus ou moins forte des populations et des logements selon leurs caractéristiques sociales - dans les principales unités urbaines de France métropolitaine (voir https://www.strategie.gouv.fr/publications/evolution-de-segregation-residentielle-france). Cette étude souligne notamment la stabilité générale de la ségrégation depuis les années 1990 et même une baisse pour le parc HLM, c'est-à-dire une meilleure diffusion des logements sociaux sur le territoire.
+A la suite de cette étude de référence, l'INSEE décide de commander à ses antennes régionales la réalisation d'études rigoureuses, synthétiques et fines spatialement sur la situation du logement social dans plusieurs communes centrales de grandes agglomérations françaises. Il s'agit principalement d'évaluer la situation de ces communes vis-à-vis du cadre légal de la loi SRU et d'approfondir la connaissance institutionnelle sur la géographie interne de répartition des logements sociaux : la tendance récente est-elle plutôt toujours à une diffusion et à une moindre ségrégation ?... Le format attendu de ces notes de synthèse, mobilisant les données disponibles les plus précises, est celui d'un 4 pages de type Insee Première (https://www.insee.fr/fr/statistiques/3635547)".
+
+### Modalités de l'exercice, restitution du travail et organisation durant la semaine
+1. Lundi matin : constitution de groupes de 4 étudiant·es de préférence (ou 5), mélangeant les profils de Master
+2. Lundi à mercredi : réflexion sur les possibilités d'analyse et explorations des données : variables pertinentes, traitements envisagés...
+3. Mardi à jeudi : réalisation des analyses statistiques et cartographiques
+4. Mercredi à vendredi matin : organisation, mise en forme des analyses et rédaction de la note écrite
+5. Vendredi après-midi : présentation orale (environ 10 minutes, sans autre support visuel que la note écrite) devant un "jury" composé des intervenants de la semaine (et de possibles extérieurs) 
+
+### Cas d'étude
+La commune-centre de grandes agglomérations françaises : 
+
+- Lyon (codegeo : 69123)
+- Montpellier (codegeo : 34172)
+- Nantes (codegeo : 44109)
+- Nice (codegeo : 06088)
+- Rennes (codegeo : 35238)
+- Saint-Etienne (codegeo : 42218)
+- Strasbourg (codegeo : 67482)
+- Toulouse (codegeo : 31555)
+
+### Format du rendu
+- Introduction et définition (thématique et statistique) de l'objet : thème et cas d'étude
+- Etat des lieux général des logements sociaux dans la commune-centre étudiée, par rapport au contexte national (loi SRU par exemple), aux évolutions temporelles... Echelle de référence = commune ; maille de référence = IRIS
+- Caractérisation des logements sociaux (types de logement, habitants) et de leur localisation dans la commune d'étude. Echelle de référence = commune ; mailles de référence = IRIS, adresse.
+- Approfondissements selon les catégories de logements sociaux (cf. quatre modes de financement : PLI, PLS, PLAI, PLUS). Echelle de référence =  commune ; mailles de référence = IRIS, adresse.
