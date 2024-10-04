@@ -27,7 +27,12 @@ website:
       - href: 06-agregation_point.qmd
         text: "Agrégation par iris ou adresse"   
       - href: 07-carto_dyn.qmd
-        text: "Cartographie mapview"         
+        text: "Cartographie mapview"  
+    - section: "ANALYSE SPATIALE"
+      contents: 
+      - href: 08-semis-de-points.qmd
+        text: "Semis de points" 
+
   navbar:
     right: 
       - icon: github # add icons as navbar buttons

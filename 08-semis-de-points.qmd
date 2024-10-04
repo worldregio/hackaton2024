@@ -1,0 +1,420 @@
+---
+title: "Ellipse de dispersion"
+author: "C. Grasland"
+embed-resources: true
+---
+
+```{r}
+# Options générales
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning= FALSE, 
+                      error=FALSE)
+
+# Selection de packages tidyverse
+library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
+#library(tidyr,quietly = T,warn.conflicts = F,verbose = F)
+#library(ggplot2,quietly = T,warn.conflicts = F,verbose = F)
+
+# packages de cartographie
+library(sf,quietly = T, verbose=F)
+library(mapsf)
+library(mapview)
+#library(RColorBrewer)
+
+# packages de statistique
+library(DescTools)
+library(car)
+library(Hmisc)
+
+
+
+
+```
+
+
+## Introduction
+
+Il est difficile de résumer ici l'ensemble des méthodes d'**analyse de semis de points** qui constituent une branche très importante de l'analyse spatiale en géographie et de l'épidémiologie en médecine. On se limitera donc ici à quelques applications simples des ellipses de dispersion pour l'étude du logement social et on envoie les étudiants intéressés à deux sites internets plus complets qui présentent les aspects théoriques et indiquent les programmes R permettant d'appliquer sur des cas concrets.
+
+- **Guerois M., Traore S., 2023,** [Introduction à l'analyse des semis de points](https://ee2023.netlify.app/modules/spa1_sem), Ecole d'été CIST 2023, Ouidah, Bénin.
+
+
+- **Apparicio P., 2024,** [Méthodes de répartition ponctuelle](https://serieboldr.github.io/MethodesAnalyseSpatiale/03-MethodesRepartitionPonctuelle.html), Méthodes d’analyse spatiale : un grand bol d’R
+
+## Exemple théorique
+
+
+### Distribution aléatoire 
+
+Considérons tout d'abord un cas théorique de création d'une distribution gaussienne à deux dimensions de paramètres X(moy=10 ect = 4) et Y(moy=5, ect=2). On génère la distribution par tirage au sort de 100 points (xi,yi) à l'aide des paramètres fixés. Il suffit pour cela d'utiliser la fonction `rnorm()`de R-Base
+
+```{r}
+X<-rnorm(100, mean=10, sd=4)
+Y<-rnorm(100, mean=5, sd=2)
+plot(x=X,y=Y,asp = 1, pch=20,col="red", xlim=c(0,20) ,ylim= c(0,10))
+```
+
+Si l'on veut résumer cette distribution, on doit retrouver les paramètres caractéristiques qui ont servi à la générer et que, dans le cas présent, nous connaissons.
+
+### Point moyen
+
+Les points ayant tous le même poids dans notre exemple, la détermination du point moyen G, aussi appelé centre de gravité  est très simple et consiste simplement à calculer les moyennes de X et Y :
+
+```{r}
+Xg <- mean(X)
+Yg <- mean(Y)
+G <- cbind(Xg,Yg)
+G
+```
+
+On en retrouve pas exactement les paramètres que nous avions fixé, ce qui est logique puisque nous avons procédé à un tirage aléatoire. Le résulat est tout de même très proche et peut être visualisé.
+
+
+```{r}
+
+X<-rnorm(100, mean=10, sd=4)
+Y<-rnorm(100, mean=5, sd=2)
+plot(x=X,y=Y,asp = 1, pch=20,col="red", xlim=c(0,20) ,ylim= c(0,10))
+points(G, col="blue", cex=2, pch=15)
+
+```
+
+### Distance-type
+
+La distance-type est une mesure de dispersion des points autour du centre de gravité. C'est l'équivalent de l'écart-type dans un espace à deux dimensions. Sa formule de calcul est basée sur l'écart-type de X et celui de Y :
+
+$D = \sqrt{\sigma_X^2+\sigma_Y^2}$
+
+Dans notre exemple, le calcul donne le résultat suivant :
+
+```{r}
+ectX = sd(X)
+paste("écart-type de X =", round(ectX,2))
+ectY = sd(Y)
+paste("écart-type de Y =", round(ectY,2))
+D = sqrt(ectX**2+ectY**2)
+paste("Distance-type =", round(D,2))
+```
+
+On peut visualiser la distance-type en traçant un cercle autour du centre de gravite de rayon D. Conformément aux propriétés de l'écart-type, on s'attend à y trouver environ 67% des valeurs. On utilise le package DescTools
+
+```{r}
+#library(DescTools)
+X<-rnorm(100, mean=10, sd=4)
+Y<-rnorm(100, mean=5, sd=2)
+plot(x=X,y=Y,asp = 1, pch=20,col="red", xlim=c(0,20) ,ylim= c(0,10))
+points(G, col="blue", cex=2, pch=15)
+DrawEllipse(x=Xg, 
+            y=Yg, 
+            radius.x=D, 
+            radius.y=D, 
+            col = NA,
+            border = "blue",
+            lwd=2)
+
+```
+
+### Ellipse de dispersion
+
+Nous avons toutefois observé que la dispersion du semis de point créé était deux fois plus forte le long de l'axe X que de l'axe Y. Il n'est donc pas logique de résumer ce semis de point par un cercle et il serait plus adapté de lui donner la forme d'une ellipse dont l'axe horizontal serait proportionnel à l'écart-type de X et l'axe vertical à l'écart-type de Y. Ce qui donnerait la représentation suivante :
+
+```{r}
+
+#library(DescTools)
+X<-rnorm(100, mean=10, sd=4)
+Y<-rnorm(100, mean=5, sd=2)
+plot(x=X,y=Y,asp = 1, pch=20,col="red", xlim=c(0,20) ,ylim= c(0,10))
+points(G, col="blue", cex=2, pch=15)
+DrawEllipse(x=Xg, 
+            y=Yg, 
+            radius.x=ectX, 
+            radius.y=ectY, 
+            col = NA,
+            border = "blue",
+            lwd=2)
+
+```
+
+Cette fois-ci l'ellipse s'ajuste beaucoup mieux au nuage de point et permet d'en fournir un résumé pertinent qui correspond bien à deux tiers de l'effectif. 
+
+### Intervalles de confiance
+
+On arrive donc à une solution générale qui consiste à chercher une ellipse théorique qui regroupera un certain pourcentage des points dans l'hypothèse d'une distribution gaussienne à deux dimensions. Les axes de l'ellipse ne seront pas forcément orthogonaux et pourront s'incliner si l'allongement est en diagonale.
+
+On va ici utiliser la fonction `dataEllipse()` du package **car** qui fournit le graphique en une seule ligne de commande :
+
+
+```{r}
+#library(car)
+dataEllipse(X,Y)
+```
+
+On peut améliorer considérablement la figure en lui ajoutant des paramètres graphiques et un habillage. La fonction dataEllipse propose de nombreux paramètres qui permettent de choisir le nombre d'ellipses, la probabilité associée,  les couleurs, etc. 
+
+```{r}
+dataEllipse(x=X,
+            y=Y,
+            pch=20,
+            levels = c(0.67,0.95),
+            ellipse.label = c("1 ect. = 67%","2 ect. = 95%"),
+            col=c("red","blue"),
+            fill= TRUE,
+            fill.alpha = 0.2)
+```
+
+## Semis non pondéré (RPLS)
+
+Essayons d'appliquer la méthode précédente au cas d'un **semis de point non pondéré**, celui des logements de la base RPLS. 
+
+### Données
+
+On charge le fichier original où chaque logement correspond à une ligne. Il y a évidemment des superpositions de logement au même emplacement mais cela n'est pas un souci et le semis est actuellement non pondéré.
+
+La seule chose que nous ayons à faire consiste donc à extraire les coordonnées X,Y des logements sociaux dans une projection cartographique permettant de calculer des distances approximatives à vol d'oiseau. On va donc bien vérifier que la projection est de type Lambert93 (EPSG = 2154) puis utiliser la fonction fonction `st_coordinates()` pour récupérer les positions X et Y de chaque logement.
+
+
+```{r}
+logt<-readRDS(file = "res/rpls_geom.RDS")
+st_crs(logt)
+coo<-st_coordinates(logt)
+logt$X<-coo[,1]
+logt$Y<-coo[,2]
+```
+
+### Centre de gravité
+
+On calcule la postion du centre de gravité de l'ensemble des logements sociaux en reprenant le programme précédent 
+
+
+```{r}
+Xg<-mean(logt$X)
+Yg<-mean(logt$Y)
+G<-cbind(Xg,Yg)
+G
+```
+
+Ensuite on visualise sa position sur une carte. On ajoute les contours de la commune (et des arrondissements) pour mieux se repérer.
+
+```{r}
+map<-readRDS("res/map_com.RDS")
+map_arr<-readRDS("res/map_arr.RDS")
+st_crs(map)
+
+par(mar=c(0,0,0,0))
+plot(map$geometry, col="lightyellow")
+plot(map_arr$geometry, col=NA, border="gray30", lwd=0.5, add=T)
+points(cbind(logt$X, logt$Y), col="red", pch=20, cex=0.1)
+points(G, col="blue",pch=15, cex=1)
+```
+
+Si on veut connaître la localisation exacte de ce point, on peut le projeter en EPSG4326 et le visualiser avec mapview.
+
+```{r}
+G<-as.data.frame(G)
+centre <- st_as_sf(G,coords=c(1,2))
+st_crs(centre)<-2154
+st_transform(centre, 4326)
+mapview(centre)
+```
+
+On voit qu'il se situe Boulevard Leglize, à proximité du **couvent des Petites Soeurs des Pauvres** ... Tout un symbôle ! En tous les cas cet emplacement pourrait être utilisé pour localiser l'office central des logements sociaux même s'il ne correspond pas tout à fait exactement au point le plus accessible (Cf. cours sur point moyen et point médian)
+
+
+-**QUESTIONS : ** Le centre de gravité est-il le même pour tous les types de logements sociaux (PLAI, PLUS,...) ? S'est-il déplacé au cours du temps ? etc. 
+
+
+
+### Distance-type 
+
+On calcule sans difficultés la distance-type des logements sociaux à ce centre de gravité à l'aide des deux écarts-types :
+
+```{r}
+ectX = sd(logt$X)
+paste("écart-type de X =", round(ectX,2))
+ectY = sd(logt$Y)
+paste("écart-type de Y =", round(ectY,2))
+D = sqrt(ectX**2+ectY**2)
+paste("Distance-type =", round(D,2))
+```
+
+Les résultats sont exprimés en mètres et on peut donc estimer que la dispersion des logements sociaux par rapport à leur centre de gravité est d'environ 4.5 km. 
+
+-**QUESTIONS : ** La dispersion est-elle le même pour tous les types de logements sociaux (PLAI, PLUS,...) ? A-t-elle augmenté ou diminué au cours du temps ? etc. 
+
+
+### Ellipse de dispersion
+
+On peut très facilement tracer une ellipse de dispersion sur une carte statique produite à l'aide de mapsf. Il suffit en effet d'ajouter l'instruction add=T dans la fonction Dataellipse() du package car.
+
+```{r}
+map<-readRDS("res/map_com.RDS")
+map_arr<-readRDS("res/map_arr.RDS")
+
+
+mf_map(map, type="base",col="lightyellow")
+mf_map(map_arr, type = "base", col= NA, border="gray30", add=T)
+dataEllipse(x=logt$X,
+            y=logt$Y,
+            pch=20,
+            cex=0.1,
+            levels = c(0.25,0.5, 0.75),
+            ellipse.label = c("25%","50%","75%"),
+            col=c("red","blue"),
+            fill= TRUE,
+            add=T)
+mf_layout(title = "Ellipses de dispersion des logements sociaux aux seuils 25%, 50% et 75%",
+          credits = "Source : RPLS & IGN",
+          scale = T,
+          frame= T
+          )
+```
+
+Il est possible d'introduire dans la fonction DataEllipse une variable catégorielle pour tracer plusieurs ellipse. On peut ainsi par exemple tracer trois ellipses correspondant aux logements construits avant 1944, de 1944 à 1974 et après 1974.
+
+
+
+```{r}
+logt$periode<-cut(logt$CONSTRUCT, breaks=c(1800, 1944, 1974, 2020))
+levels(logt$periode) <-c("1944<","1944-74",">1974")
+table(logt$periode)
+
+
+
+mf_map(map, type="base",col="gray90")
+mf_map(map_arr, type = "base", col= NA, border="gray30", add=T)
+mf_map(logt, type="typo",
+       var="periode",
+       pch=20,
+       cex=0.3,
+       pal=c("brown","red","blue"),
+       add=T)
+dataEllipse(x=logt$X,
+            y=logt$Y,
+            groups = logt$periode,
+            plot.points = FALSE,
+            pch=20,
+            cex=0.1,
+            levels = 0.5,
+            col=c("brown","red","blue"),
+            fill= TRUE,
+            fill.alpha = 0.1,
+            add=TRUE)
+mf_layout(title = "Evolution temporelle des ellipses de dispersion des logements sociaux au seuil de 50%",
+          credits = "Source : RPLS & IGN",
+          scale = T,
+          frame= T
+          )
+
+```
+
+-**QUESTIONS : ** Les ellipses de dispersion sont-elles les mêmes pour tous les types de logements ? Comment évoluent-elles au cours du temps ? 
+
+
+## Semis pondérés (RP)
+
+On peut appliquer les mêmes méthodes au cas de semis de point pondérés. On aurait donc pu utiliser le fichier des logements sociaux regroupés par adresse pour obtenir des visualisations plus juste des points superposés dans l'analyse précédente. 
+
+Nous allons ici prendre l'exemple des données par IRIS pour lesquelles on ne connaît pas la localisation exacte des habitants et tenter de mesurer les paramètres respectifs de dispersion de l'ensemble de la population de Marseille puis de la population qui réside en HLM.
+
+
+### Données
+
+On charge le fichier des données sur les ménages en HLM par IRIS que nous avons créé précédemment.  Nous en extrayons les centroïdes pour obtenir des coordonnées X et Y à l'aide des deux fonctions `st_coodinates()` et `st_centroid()` du package sf
+
+
+```{r}
+map_iris_hlm<-readRDS("res/map_iris_hlm.RDS") %>% filter(is.na(TOT)==F)
+coo<-st_coordinates(st_centroid(map_iris_hlm))
+map_iris_hlm$X <-coo[,1]
+map_iris_hlm$Y <-coo[,2]
+```
+
+### Centre de gravité
+
+On a besoin du package Hmisc pour calculer des moyenne et des écart-types pondérés
+
+
+```{r}
+#library(Hmisc)
+
+# Ensemble de la population
+Xg_tot <- wtd.mean(map_iris_hlm$X, weights = map_iris_hlm$TOT)
+Yg_tot <- wtd.mean(map_iris_hlm$Y, weights = map_iris_hlm$TOT)
+G_tot<-cbind(Xg_tot,Yg_tot)
+G_tot
+
+# Population vivant en HLM
+Xg_hlm <- wtd.mean(map_iris_hlm$X, weights = map_iris_hlm$HLM_1)
+Yg_hlm <- wtd.mean(map_iris_hlm$Y, weights = map_iris_hlm$HLM_1)
+G_hlm<-cbind(Xg_hlm,Yg_hlm)
+G_hlm
+```
+
+On visualise la position des deux points sur une carte : 
+
+
+```{r}
+par(mar=c(0,0,0,0))
+plot(map_iris_hlm$geometry, col="lightyellow", lwd=0.1)
+points(G_tot, col="blue", pch=20)
+points(G_hlm, col="red", pch=20)
+```
+
+Le centre de gravité des HLM est clairement situé plus au nord que celui de tous les logements.
+
+### Distance-type
+
+```{r}
+#library(Hmisc)
+
+# Ensemble de la population
+VarX_tot <- wtd.var(map_iris_hlm$X, weights = map_iris_hlm$TOT)
+VarY_tot <- wtd.var(map_iris_hlm$Y, weights = map_iris_hlm$TOT)
+D_tot <- sqrt(VarX_tot+VarY_tot)
+D_tot
+
+# Population vivant en HLM
+VarX_hlm <- wtd.var(map_iris_hlm$X, weights = map_iris_hlm$HLM_1)
+VarY_hlm <- wtd.var(map_iris_hlm$Y, weights = map_iris_hlm$HLM_1)
+D_hlm <- sqrt(VarX_hlm+VarY_hlm)
+D_hlm
+
+```
+
+On constate que la dispersion des ménages en HLM est légèrement plus forte que celle de la population totale. Les ménages en HLM sont donc a priori situés davantage en périphérie du centre.
+
+### Ellipses de dispersion 
+
+On peut terminer notre analyse par la réalisation de cartes par ellipses en combinant les packages map_sf et car
+
+
+```{r}
+par(mfrow=c(1,2))
+
+mf_map(map_iris_hlm, type="base",col="lightyellow")
+dataEllipse(map_iris_hlm$X, 
+            map_iris_hlm$Y,
+            weights = map_iris_hlm$TOT, 
+            col="blue",
+            pch=20,
+            cex=0.3,
+            levels = 0.5,
+            add=T)
+mf_layout(title = "Ellipse 50% - Tous ménages",
+          frame=T)
+
+mf_map(map_iris_hlm, type="base",col="lightyellow")
+dataEllipse(map_iris_hlm$X, 
+            map_iris_hlm$Y,
+            weights = map_iris_hlm$HLM_1, 
+            col="red",
+            pch=20,
+            cex=0.3,
+            levels = 0.5,
+            add=T)
+mf_layout(title = "Ellipse 50% - Ménages en HLM",
+          frame=T)
+```
+
+
