@@ -19,15 +19,15 @@ website:
       - href: 03-agregation-spatiale.qmd
         text: "Agrégation par iris"   
       - href: 04-carto-statique.qmd
-        text: "Cartographie mapsf" 
+        text: "Cartographie statique" 
     - section: "DONNEES RPLS"
       contents: 
       - href: 05-exploration.qmd
         text: "Exploration"   
       - href: 06-agregation_point.qmd
-        text: "Agrégation par iris ou adresse"   
-      - href: 07-carto_dyn.qmd
-        text: "Cartographie mapview"  
+        text: "Agrégation par adresse"  
+      - href: 07-carto-leaflet.qmd
+        text: "Cartographie dynamique"  
     - section: "ANALYSE SPATIALE"
       contents: 
       - href: 08-semis-de-points.qmd

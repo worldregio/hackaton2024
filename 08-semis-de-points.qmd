@@ -13,14 +13,11 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # Selection de packages tidyverse
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
-#library(tidyr,quietly = T,warn.conflicts = F,verbose = F)
-#library(ggplot2,quietly = T,warn.conflicts = F,verbose = F)
 
 # packages de cartographie
 library(sf,quietly = T, verbose=F)
 library(mapsf)
-library(mapview)
-#library(RColorBrewer)
+library(leaflet)
 
 # packages de statistique
 library(DescTools)
@@ -101,17 +98,17 @@ On peut visualiser la distance-type en traçant un cercle autour du centre de gr
 
 ```{r}
 #library(DescTools)
+
 X<-rnorm(100, mean=10, sd=4)
 Y<-rnorm(100, mean=5, sd=2)
 plot(x=X,y=Y,asp = 1, pch=20,col="red", xlim=c(0,20) ,ylim= c(0,10))
 points(G, col="blue", cex=2, pch=15)
-DrawEllipse(x=Xg, 
-            y=Yg, 
-            radius.x=D, 
-            radius.y=D, 
-            col = NA,
-            border = "blue",
-            lwd=2)
+
+DrawCircle(x=Xg,y=Yg, 
+        r.out=D, 
+        col = NA,
+        border = "blue",
+        lwd=2)
 
 ```
 
@@ -208,14 +205,25 @@ points(cbind(logt$X, logt$Y), col="red", pch=20, cex=0.1)
 points(G, col="blue",pch=15, cex=1)
 ```
 
-Si on veut connaître la localisation exacte de ce point, on peut le projeter en EPSG4326 et le visualiser avec mapview.
+Si on veut connaître la localisation exacte de ce point, on peut le projeter en EPSG4326 et le visualiser avec leaflet (Cf. cours précédent).
 
 ```{r}
+# Rassemble les coordonnées
 G<-as.data.frame(G)
+
+# Transforme en fichier sf
 centre <- st_as_sf(G,coords=c(1,2))
 st_crs(centre)<-2154
-st_transform(centre, 4326)
-mapview(centre)
+
+# Projette en latitude longitude
+centre<-st_transform(centre, 4326)
+
+
+# Visualise le point
+map <- leaflet(centre) %>% 
+            addTiles() %>%
+            addMarkers()
+map
 ```
 
 On voit qu'il se situe Boulevard Leglize, à proximité du **couvent des Petites Soeurs des Pauvres** ... Tout un symbôle ! En tous les cas cet emplacement pourrait être utilisé pour localiser l'office central des logements sociaux même s'il ne correspond pas tout à fait exactement au point le plus accessible (Cf. cours sur point moyen et point médian)
