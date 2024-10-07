@@ -7,9 +7,15 @@ embed-resources: true
 ```{r}
 # Options générales
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning= FALSE, 
-                      error=FALSE)
+options(max.print="80")
+opts_chunk$set(echo=TRUE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               options(scipen=999))
 
 # Selection de packages tidyverse
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
@@ -227,7 +233,7 @@ On donne juste quelques possibilités à titre d'exemple.
 
 Les deux variables sont de type qualitatif. On va donc créer un tableau de contingence, analyser les profils puis utiliser un test du chi-2. 
 
-```{r}
+```{r, warning=TRUE}
 # Tableau de contingence
 tab<-table(sel$fin,sel$ene)
 kable(addmargins(tab), caption="Tableau de contingence")
@@ -326,7 +332,7 @@ mod2<-lm(sel$sup~sel$anc)
 summary(mod2)
 ```
 
-On réalise un graphique avec ggplot qui reproduit l'ajustement linéaire utilisé :
+On réalise un graphique avec ggplot qui reproduit l'ajustement linéaire utilisé et on y ajoute un ajustement non linéaire afin de pouvoir visualiser la tendance générale et les cycles autour de celle-ci.
 
 
 ```{r}

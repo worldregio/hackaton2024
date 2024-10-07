@@ -7,18 +7,32 @@ embed-resources: true
 
 
 ```{r}
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning= FALSE, 
-                      message = FALSE, 
-                      error=FALSE)
 library(knitr)
+options(max.print="80")
+opts_chunk$set(echo=TRUE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               options(scipen=999))
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
-library(data.table,warn.conflicts = F, verbose=F)
 library(sf,quietly = T, verbose=F)
 ```
 
 ## Introduction
 
+
+
+
+Pour commencer, vous devez télécharger le dossier contenant l'ensembles des données à [l'adresse suivante](https://acloud.zaclys.com/index.php/s/7xKY955SfAKZsTp) et le décompresser. 
+
+Vous allez ensuite créer à l'intérieur un dossier `res`pour y stocker vos propres données et ouvrir un projet R. Enfin vous allez créer un document quarto appel `prepare_data.qmd` et vous trouver dans la situation suivante.
+
+![situation de départ](img/init_data.jpg)
+
+Vous pouvez désormais recopier les différents fragements de programme présentés ci-dessous qui vont vous permettre de transférer dans votre dossier `res` les fichiers utiles pour l'étude de votre commune. Une fois l'opération faite, vous pourrez détruire les dossiers data et meta...
 
 ## RP Logement 2020 (INSEE)
 
@@ -99,7 +113,7 @@ library(sf)
 map_iris <- st_read("data/iris_13055.gml")
 dim(map_iris)
 class(map_iris)
-head(map_iris,2)
+kable(head(map_iris,2))
 ```
 
 
@@ -197,15 +211,31 @@ Les données sur le logement social sont été téléchargées  sur le site du m
 
 ### Etape 1 : Chargement du fichier
 
-On charge le fichier qui comporte 182735 observation et 70 variables et on le sauvegarde
+On charge le fichier qui comporte 182735 observation et 70 variables 
 
 
 ```{r,eval=TRUE}
 rpls<-read.csv("data/rpls_13055.csv")
-head(rpls)
+kable(head(rpls))
 saveRDS(rpls,"res/rpls.RDS")
 
 ```
+
+Mais il faut retirer un certain nombre de lignes qui ne correspondent pas à des logements sociaux. On va donc utiliser le critère CONV==1 pour ne conserver que les logements conventionnés.
+
+
+```{r}
+rpls <- rpls %>% filter(CONV==1)
+dim(rpls)
+```
+
+On voit qu'il ne reste plus que 72772 lignes. On sauvegarde le résultat dans le dossier res.
+
+```{r}
+saveRDS(rpls,"res/rpls.RDS")
+```
+
+
 
 
 ### Etape 2 : Test de superposition géométrique
@@ -226,7 +256,7 @@ Bingo, la superposition est parfaite donc la projection est la même. Il s'agit 
 st_crs(map_iris)
 ```
 
-
+Il s'agit de la projection Lambert93 utilisée en France oar l'INSEE et l'IGN.
 
 ### Etape 3 : Carte des logements sociaux
 

@@ -7,9 +7,15 @@ embed-resources: true
 ```{r}
 # Options générales
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning= FALSE, 
-                      error=FALSE)
+options(max.print="80")
+opts_chunk$set(echo=TRUE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               options(scipen=999))
 
 # Selection de packages tidyverse
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)

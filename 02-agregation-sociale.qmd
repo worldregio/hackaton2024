@@ -5,11 +5,16 @@ embed-resources: true
 ---
 
 ```{r}
-# Options générales
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning= FALSE, 
-                      error=FALSE)
+options(max.print="80")
+opts_chunk$set(echo=TRUE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               options(scipen=999))
 
 # Selection de packages tidyverse
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
@@ -176,8 +181,11 @@ plot(mytable)
 
 Tant qu'à faire, on améliore la figure avec des paramètres supplémentaires : 
 
-```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=F, fig.height=4,fig.width=6}
-plot(mytable, main = "Logements HLM & Diplôme CM", sub = "Source : INSEE - RP 2018", col=c("lightyellow","lightgreen"))
+```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=T, fig.height=6,fig.width=8}
+plot(mytable, 
+     main = "Logements HLM & Diplôme CM",
+     sub = "Source : INSEE - RP 2020",
+     col=c("lightyellow","lightgreen"))
 ```
 
 ### Test du Chi-deux
@@ -196,8 +204,11 @@ La lecture de la p-value permet de savoir s'il existe une relation significative
 
 Lorsque la relation est significative, on peut visualiser les cases les plus exceptionnelles avec *mosaicplot( ..., shade = T)*
 
-```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=F, fig.height=4,fig.width=6}
-mosaicplot(mytable, main =  "Logements HLM & diplôme CM", sub = "Source : INSEE - RP 2020", shade =T)
+```{r, cache.comments=TRUE,comment=F,message=F, comment = F,error=FALSE,echo=-TRUE, fig.height=6,fig.width=8}
+mosaicplot(mytable, 
+           main =  "Logements HLM & diplôme CM",
+           sub = "Source : INSEE - RP 2020", 
+           shade =T)
 ```
 
 ## Exemple 2 : HLM et ancienneté d'occupation

@@ -7,9 +7,15 @@ embed-resources: true
 ```{r}
 # Options générales
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning= FALSE, 
-                      error=FALSE)
+options(max.print="80")
+opts_chunk$set(echo=TRUE,
+               cache=FALSE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               options(scipen=999))
 
 # Selection de packages tidyverse
 library(dplyr,quietly = T,warn.conflicts = F,verbose = F)
@@ -173,7 +179,7 @@ La seule chose que nous ayons à faire consiste donc à extraire les coordonnée
 
 ```{r}
 logt<-readRDS(file = "res/rpls_geom.RDS")
-st_crs(logt)
+#st_crs(logt)
 coo<-st_coordinates(logt)
 logt$X<-coo[,1]
 logt$Y<-coo[,2]
@@ -226,7 +232,7 @@ map <- leaflet(centre) %>%
 map
 ```
 
-On voit qu'il se situe Boulevard Leglize, à proximité du **couvent des Petites Soeurs des Pauvres** ... Tout un symbôle ! En tous les cas cet emplacement pourrait être utilisé pour localiser l'office central des logements sociaux même s'il ne correspond pas tout à fait exactement au point le plus accessible (Cf. cours sur point moyen et point médian)
+On voit qu'il se situe Boulevard Velten, à proximité du **couvent des Petites Soeurs des Pauvres** ... Tout un symbôle ! En tous les cas cet emplacement pourrait être utilisé pour localiser l'office central des logements sociaux même s'il ne correspond pas tout à fait exactement au point le plus accessible (Cf. cours sur point moyen et point médian)
 
 
 -**QUESTIONS : ** Le centre de gravité est-il le même pour tous les types de logements sociaux (PLAI, PLUS,...) ? S'est-il déplacé au cours du temps ? etc. 
@@ -405,11 +411,14 @@ dataEllipse(map_iris_hlm$X,
             map_iris_hlm$Y,
             weights = map_iris_hlm$TOT, 
             col="blue",
+            fill = T,
+            fill.alpha = 0.2,
+            ellipse.label = c("67%","95%"),
             pch=20,
-            cex=0.3,
-            levels = 0.5,
+            cex=0.4,
+            levels = c(0.67,0.95),
             add=T)
-mf_layout(title = "Ellipse 50% - Tous ménages",
+mf_layout(title = "Ellipses - Tous ménages",
           frame=T)
 
 mf_map(map_iris_hlm, type="base",col="lightyellow")
@@ -417,11 +426,14 @@ dataEllipse(map_iris_hlm$X,
             map_iris_hlm$Y,
             weights = map_iris_hlm$HLM_1, 
             col="red",
+            fill = T,
+            fill.alpha = 0.2,
+            ellipse.label = c("67%","95%"),
             pch=20,
-            cex=0.3,
-            levels = 0.5,
+            cex=0.7,
+            levels = c(0.67, 0.95),
             add=T)
-mf_layout(title = "Ellipse 50% - Ménages en HLM",
+mf_layout(title = "Ellipses - Ménages en HLM",
           frame=T)
 ```
 
